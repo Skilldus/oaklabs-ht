@@ -1,0 +1,10 @@
+{
+  "place": "none",
+  "title": "Boîte PC",
+  "overlay": {
+    "kind": "dialog",
+    "width": 540,
+    "height": 0.72,
+    "frame": "none"
+  }
+}

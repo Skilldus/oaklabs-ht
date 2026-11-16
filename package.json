@@ -1,9 +1,11 @@
 {
   "name": "oaklabs-ht",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "tsc",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "npm run build && node tests/companions.test.mjs"
   },
   "devDependencies": {
     "typescript": "6.0.3"

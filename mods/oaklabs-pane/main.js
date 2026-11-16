@@ -2,13 +2,22 @@
 // Adapted from Herdr's pane header (Apache-2.0, see NOTICE).
 import { View, div, svg, image } from "gpui-kit";
 import { h_flex } from "gpui-base";
-import { panes, props, run, theme, home, layout } from "herdr";
+import { panes, props, run, theme, home, layout, shared } from "herdr";
 const INK = "#14161D";
 const STATUS_COLORS = {
     working: "#FFD23F",
     blocked: "#FF7043",
     done: "#52C07A",
 };
+function paneCompanion(pane) {
+    const panes = shared("oaklabs.companions.panes");
+    const companion = panes?.[pane];
+    if (!companion)
+        return null;
+    const sprites = shared("oaklabs.companions.sprites");
+    const format = sprites?.[companion.pokemon];
+    return { level: companion.level, path: format ? `data/oaklabs-companions/sprites/${companion.pokemon}.${format}` : null };
+}
 // Match the first visible tab frame, including the active child of a stack.
 function paneFrame(node) {
     if (!node || node.hidden)
@@ -64,7 +73,8 @@ export default class Pane extends View {
         if (!p)
             return div();
         const name = p.name || ((p.program?.agent || p.program?.shell) && p.program.name) || p.title || p.program?.name || "shell";
-        const pic = icon(p.program, 14, INK);
+        const companion = p.status ? paneCompanion(p.pane) : null;
+        const pic = companion?.path ? image(companion.path).id(`pane-sprite-${p.pane}`).size(20).flex_none() : icon(p.program, 14, INK);
         const st = p.status;
         const statusColor = st ? STATUS_COLORS[st] : undefined;
         const restColor = t.oak_pane_rest;
@@ -94,6 +104,8 @@ export default class Pane extends View {
             .when(!bottom, el => el.bottom(0)))
             .children(pic ? [pic] : [])
             .child(div().flex_none().truncate().max_w(260).font_family("Baloo 2").font_weight(800).text_size(14).text_color(INK).child(name))
+            .when(companion !== null, el => el.child(div().flex_none().px(5).rounded_full().bg("#FFFFFF59")
+            .font_semibold().text_size(10).text_color(INK).child(`Niv. ${companion?.level}`)))
             .child(div().flex_1().truncate().font_family("Nunito").font_weight(600).text_color(INK).child(folder(p.cwd)))
             .when(st === "working", el => el.child(svg("mods/workspace-chrome/spinner.svg").size(12).flex_none().text_color(INK).spin(900)))
             .when(st === "blocked", el => el.child(div().flex_none().px(6).h(18).flex().items_center().rounded_full().bg("#FFFFFF59").text_size(10.5).font_semibold().text_color(INK).child("Needs you")))

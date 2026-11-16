@@ -7,15 +7,16 @@
     16
   ],
   "theme": {
-    "light": "oaklabs-paper",
-    "dark": "oaklabs-scanner"
+    "light": "Mewltiplex-Clair",
+    "dark": "Mewltiplex-Sombre"
   },
-  "preview": "layouts/oaklabs.png",
+  "preview": "layouts/Mewltiplex.png",
   "background": "canvas",
   "terminal_padding": [
     14,
     12
   ],
+  "terminal_opacity": 0,
   "divider": {
     "width": 1,
     "color": "border"
@@ -66,7 +67,10 @@
               },
               "min": 90,
               "content": {
-                "mod": "agents"
+                "mod": "oaklabs-companions",
+                "props": {
+                  "sidebar": true
+                }
               }
             }
           ]
