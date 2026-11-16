@@ -22,6 +22,7 @@ Les en-têtes de terminaux reprennent les couleurs du Pokédex et des voyants du
 - Les deux fichiers de `themes/` définissent les surfaces, les états et les 16 couleurs ANSI. Le fond du cadre et le fond déclaré par le terminal utilisent la même couleur.
 - `mods/oaklabs-brand/main.js` adapte l’en-tête de `workspace-chrome`. Il utilise `layout.resize` pour le rail et `mod.open` pour le sélecteur, avec les icônes déjà fournies par Herdr.
 - `mods/oaklabs-pane/main.js` adapte `pane`. Les boutons affichés au survol appellent `pane.split`, `pane.zoom` et `pane.close` avec l’identifiant du volet cliqué.
+- Les deux fichiers `main.js` sont générés depuis `src/` avec `npm run build`.
 
 ## Compatibilité
 

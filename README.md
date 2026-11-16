@@ -34,3 +34,15 @@ Pour retrouver la fenêtre d’origine, sélectionnez **Herdr** au même endroit
 - [`mods/oaklabs-brand/`](mods/oaklabs-brand) affiche Mew dans la lentille et « Mewltiplex » sous le nom OakLabs. [`mods/oaklabs-pane/`](mods/oaklabs-pane) habille les en-têtes de terminaux avec les couleurs des cartes. Les deux mods reprennent les commandes, les dimensions et les emplacements des boutons de Herdr.
 
 Les fichiers portent un nom propre au thème. Le layout `main`, les raccourcis et les préférences de Herdr restent disponibles dans la même installation. Voir [RECIPE.md](RECIPE.md) pour les détails et [NOTICE](NOTICE) pour les attributions.
+
+## Développement
+
+Les sources TypeScript des mods sont dans [`src/`](src). Les fichiers `mods/*/main.js` générés sont versionnés pour l’installation directe dans Herdr.
+
+```sh
+npm ci
+npm run typecheck
+npm run build
+```
+
+`npm run build` vérifie les types puis régénère les fichiers JavaScript dans `mods/`. Incluez-les avec les modifications des sources.

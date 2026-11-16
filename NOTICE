@@ -1,8 +1,8 @@
 Herdr App is developed by the herdrdev contributors and distributed under the Apache License, Version 2.0.
 
 The file layouts/oaklabs.json adapts Herdr's defaults/layouts/main.json.
-The file mods/oaklabs-brand/main.js adapts the header of Herdr's defaults/mods/workspace-chrome/main.js.
-The mod mods/oaklabs-pane/ adapts Herdr's defaults/mods/pane/.
+The source src/oaklabs-brand/main.ts and its generated mods/oaklabs-brand/main.js adapt the header of Herdr's defaults/mods/workspace-chrome/main.js.
+The source src/oaklabs-pane/main.ts and its generated mods/oaklabs-pane/main.js adapt Herdr's defaults/mods/pane/main.js.
 The OakLabs layout changes the palette, pane frames and header styling.
 These adaptations are distributed under the Apache License, Version 2.0.
 See LICENSES/Apache-2.0.txt for the license and https://github.com/herdrdev/herdr-app for the upstream source.
