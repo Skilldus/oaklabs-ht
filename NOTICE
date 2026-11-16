@@ -1,0 +1,12 @@
+Herdr App is developed by the herdrdev contributors and distributed under the Apache License, Version 2.0.
+
+The file layouts/oaklabs.json adapts Herdr's defaults/layouts/main.json.
+The file mods/oaklabs-brand/main.js adapts the header of Herdr's defaults/mods/workspace-chrome/main.js.
+The mod mods/oaklabs-pane/ adapts Herdr's defaults/mods/pane/.
+The OakLabs layout changes the palette, pane frames and header styling.
+These adaptations are distributed under the Apache License, Version 2.0.
+See LICENSES/Apache-2.0.txt for the license and https://github.com/herdrdev/herdr-app for the upstream source.
+
+Baloo 2 and Nunito are distributed under the SIL Open Font License 1.1. See the notices in mods/oaklabs-brand/fonts/.
+
+The Mew illustration in mods/oaklabs-brand/mew.png comes from the OakLabs app's src/assets/pokemons/151.png. Pokémon and Mew belong to their respective rights holders.
