@@ -2,6 +2,7 @@ import { exists, mkdir, readFile, unlink } from "fs/promises";
 import { platform } from "os";
 import { appHome, checking, exec, setShared, shared } from "herdr";
 import { SPECIES_COUNT, SPRITES_KEY } from "./model.js";
+import { readCurlReport } from "./download.js";
 const DIRECTORY = "data/oaklabs-companions/sprites";
 // Pin the revision used to verify coverage so that the formats match these IDs.
 const BASE = "https://raw.githubusercontent.com/PokeAPI/sprites/c0542f7c51215d9672439012838c99f520596cbd/sprites/pokemon";
@@ -66,9 +67,8 @@ async function fetchSprite(directory, pokemon, format) {
         const result = await exec(WINDOWS ? "curl.exe" : "curl", ["--fail", "--silent", "--show-error", "--location", "--proto", "=https",
             "--proto-redir", "=https", "--max-time", "10", "--max-filesize", String(MAX_BYTES),
             "--output", temp, "--write-out", "%{content_type}\n%{size_download}", `${BASE}/${path}`], { timeout: 12_000 });
-        const [type, size] = result.stdout.trim().split("\n");
-        const length = Number(size);
-        if (result.code !== 0 || type !== `image/${format}` || !(length >= 12 && length <= MAX_BYTES))
+        const { type, size } = readCurlReport(result.stdout);
+        if (result.code !== 0 || type !== `image/${format}` || !(size >= 12 && size <= MAX_BYTES))
             return false;
         if (!await cachedSprite(temp, format))
             return false;
