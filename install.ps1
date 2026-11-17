@@ -3,6 +3,13 @@ $app = Get-Command herdr-app.exe -CommandType Application -ErrorAction SilentlyC
 if (-not $app) {
     throw 'Herdr App must be installed and herdr-app.exe must be on PATH.'
 }
+# A Herdr server started here keeps this environment for every terminal it opens:
+# drop the markers of an agent session so agents launched later run as top-level sessions.
+foreach ($marker in @('CLAUDECODE', 'CLAUDE_CODE_CHILD_SESSION', 'CLAUDE_CODE_ENTRYPOINT', 'CLAUDE_CODE_EXECPATH',
+        'CLAUDE_CODE_SESSION_ID', 'CLAUDE_CODE_SESSION_ATTENDED', 'CLAUDE_CODE_MESSAGING_SOCKET',
+        'CLAUDE_CODE_MESSAGING_TOKEN', 'CLAUDE_PID', 'CLAUDE_EFFORT', 'AI_AGENT')) {
+    Remove-Item -LiteralPath "Env:$marker" -ErrorAction SilentlyContinue
+}
 
 $config = $env:HERDR_APP_HOME
 if (-not $config) {

@@ -7,6 +7,11 @@ app=$(command -v herdr-app) || {
     printf '%s\n' 'Herdr App doit être installé et herdr-app doit être dans le PATH.' >&2
     exit 1
 }
+# A Herdr server started here keeps this environment for every terminal it opens:
+# drop the markers of an agent session so agents launched later run as top-level sessions.
+unset CLAUDECODE CLAUDE_CODE_CHILD_SESSION CLAUDE_CODE_ENTRYPOINT CLAUDE_CODE_EXECPATH \
+    CLAUDE_CODE_SESSION_ID CLAUDE_CODE_SESSION_ATTENDED CLAUDE_CODE_MESSAGING_SOCKET \
+    CLAUDE_CODE_MESSAGING_TOKEN CLAUDE_PID CLAUDE_EFFORT AI_AGENT
 
 mkdir -p "$config/layouts" "$config/themes" "$config/mods"
 cp "$repo/themes/Mewltiplex-Clair.json" "$repo/themes/Mewltiplex-Sombre.json" "$config/themes/"
