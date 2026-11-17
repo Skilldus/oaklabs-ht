@@ -10,6 +10,20 @@ if (-not $config) {
     $config = Join-Path $configRoot 'herdr-app'
 }
 
+# herdr-app.exe is a GUI-subsystem binary: PowerShell neither waits for it nor sets $LASTEXITCODE.
+function Invoke-Herdr([string[]]$Arguments, [switch]$Quiet) {
+    $options = @{ FilePath = $app.Source; ArgumentList = $Arguments; Wait = $true; PassThru = $true; NoNewWindow = $true }
+    if ($Quiet) {
+        $options.RedirectStandardOutput = [IO.Path]::GetTempFileName()
+        $options.RedirectStandardError = [IO.Path]::GetTempFileName()
+    }
+    try {
+        return (Start-Process @options).ExitCode
+    } finally {
+        if ($Quiet) { Remove-Item -LiteralPath $options.RedirectStandardOutput, $options.RedirectStandardError -Force -ErrorAction SilentlyContinue }
+    }
+}
+
 $layouts = Join-Path $config 'layouts'
 $themes = Join-Path $config 'themes'
 $mods = Join-Path $config 'mods'
@@ -20,8 +34,7 @@ foreach ($theme in @('Mewltiplex-Clair', 'Mewltiplex-Sombre')) {
 }
 foreach ($mod in @('oaklabs-brand', 'oaklabs-pane', 'oaklabs-companions')) {
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot "mods/$mod") -Destination $mods -Recurse -Force
-    & $app.Source check (Join-Path $mods $mod)
-    if ($LASTEXITCODE -ne 0) {
+    if ((Invoke-Herdr @('check', (Join-Path $mods $mod))) -ne 0) {
         throw "Herdr could not load the $mod mod."
     }
 }
@@ -39,14 +52,9 @@ if ($hasLegacyLayout -and (Test-Path -LiteralPath $legacyState) -and -not (Test-
     [IO.File]::WriteAllText($state, $migrated)
 }
 
-# The CLI's probe writes to stderr when Herdr is closed.
-$ErrorActionPreference = 'Continue'
-& $app.Source status *> $null
-$appIsOpen = $LASTEXITCODE -eq 0
-$ErrorActionPreference = 'Stop'
+$appIsOpen = (Invoke-Herdr @('status') -Quiet) -eq 0
 if ($appIsOpen) {
-    & $app.Source do layout.switch --name Mewltiplex
-    if ($LASTEXITCODE -ne 0) {
+    if ((Invoke-Herdr @('do', 'layout.switch', '--name', 'Mewltiplex')) -ne 0) {
         throw 'Herdr could not switch to the Mewltiplex layout.'
     }
 } else {
