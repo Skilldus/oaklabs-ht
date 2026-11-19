@@ -1,4 +1,5 @@
 // French species names and primary types from PokéAPI data/v2/csv (National Dex #1–1025).
+import { pokedex } from "./pokedex.js";
 const entries = [
     ["Bulbizarre", 12], ["Herbizarre", 12], ["Florizarre", 12], ["Salamèche", 10], ["Reptincel", 10],
     ["Dracaufeu", 10], ["Carapuce", 11], ["Carabaffe", 11], ["Tortank", 11], ["Chenipan", 7],
@@ -208,5 +209,5 @@ const entries = [
 ];
 export function species(id) {
     const entry = entries[id - 1];
-    return entry ? { name: entry[0], type: entry[1] } : { name: `#${id}`, type: 1 };
+    return { name: entry?.[0] ?? `#${id}`, type: entry?.[1] ?? 1, ...pokedex(id) };
 }

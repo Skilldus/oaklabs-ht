@@ -1,5 +1,5 @@
 import { div, image, svg } from "gpui-kit";
-import { h_flex, v_flex } from "gpui-base";
+import { h_flex, ScrollHandle, v_flex } from "gpui-base";
 import { closeOverlay, props, run, theme } from "herdr";
 import { species } from "./catalog.js";
 import { activeTarget, liveAgents, loadCollection, refreshCollection, saveCollection } from "./live.js";
@@ -26,7 +26,6 @@ const STATUS = {
     reserve: { label: "◇ En réserve", fill: "#E7DBF4" },
 };
 const RANK = { blocked: 0, ready: 1, done: 2, working: 3, idle: 4, reserve: 5 };
-const PAGE_SIZE = 12;
 function status(entry) {
     const current = entry.target?.agent.status;
     if (!current)
@@ -53,14 +52,15 @@ function button(id, label, t, onClick, primary = false) {
         .cursor_pointer().hover(el => el.bg(primary ? SEAM : t.selected)).on_click((_e, cx) => onClick(cx)).child(label);
 }
 export class Box {
-    tab = "active";
+    tab = "all";
     selected;
     width = 540;
-    page = 0;
     feedback = "";
     focus;
+    scroll;
     constructor(cx) {
         this.focus = cx.focus_handle();
+        this.scroll = ScrollHandle.new();
         this.focus.focus();
     }
     close() {
@@ -78,19 +78,27 @@ export class Box {
         const pokemon = species(companion.pokemon);
         const [fill, edge] = COLORS[pokemon.type - 1] ?? ["#DADBE4", "#696C7B"];
         const path = sprite(companion.pokemon, cx);
-        const visual = path ? image(path).id(`box-sprite-${companion.id}`).size(70)
+        const visual = path ? image(path).id(`box-sprite-${companion.id}`).size(78)
             : title(pokemon.name.slice(0, 1), 32).text_color(edge);
         const program = entry.target ? companion.program : "Disponible";
-        return v_flex().id(`companion-${companion.id}`).relative().h(122).flex_1().min_w(0)
+        const rarity = pokemon.rarity === "mythical" ? "Fabuleux" : "Légendaire";
+        const description = `${pokemon.name}${pokemon.rarity ? ` · ${rarity}` : ""}\n${pokemon.description}${pokemon.language === "en" ? "\nDescription du Pokédex en anglais" : ""}`;
+        return v_flex().id(`companion-${companion.id}`).relative().h(148).flex_1().min_w(0)
             .overflow_hidden().rounded(15).border(2).border_color(this.selected === companion.id ? t.accent : edge)
             .bg(fill).text_color(INK).cursor_pointer().on_click((_e, event) => this.select(companion.id, event))
-            .tooltip(`${pokemon.name} · ${program} · Niv. ${level(companion.xp)}`)
-            .child(div().absolute().right(-15).bottom(9).size(103).rounded_full().bg("#FFFFFF4A"))
-            .child(div().absolute().right(6).bottom(31).w(74).h(74).flex().items_center().justify_center().child(visual))
+            .child(div().absolute().right(-15).bottom(16).size(112).rounded_full().bg("#FFFFFF4A"))
+            .child(div().id(`pokedex-sprite-${companion.id}`).absolute().right(6).bottom(34).size(82)
+            .flex().items_center().justify_center().tooltip(description).child(visual))
             .child(div().absolute().left(0).right(0).bottom(0).h(3).bg(edge))
-            .child(v_flex().flex_1().gap(2).pt(6).px(8).pr(78)
-            .child(title(pokemon.name, 19)).child(div().text_size(11).font_semibold().truncate().child(program))
+            .child(v_flex().flex_1().gap(4).pt(9).px(10).pr(88)
+            .child(title(pokemon.name, 19))
+            .child(div().text_size(11).font_semibold().truncate().child(program))
+            .child(div().text_size(11).truncate().tooltip(companion.space || "Boîte PC").child(companion.space || "Boîte PC"))
             .child(h_flex().child(pill(status(entry)))))
+            .when(pokemon.rarity !== null, el => el.child(div().id(`rarity-${companion.id}`)
+            .absolute().right(8).top(8).size(22).rounded_full().bg(pokemon.rarity === "mythical" ? "#FFE0F4" : "#FFE38B")
+            .flex().items_center().justify_center().text_size(15).text_color(INK).tooltip(rarity)
+            .child(pokemon.rarity === "mythical" ? "✦" : "★")))
             .child(v_flex().gap(3).px(8).pb(7)
             .child(h_flex().justify_between().text_size(11).font_bold()
             .child(`Niv. ${level(companion.xp)}`).child(`${companion.xp % LEVEL_XP} / ${LEVEL_XP} XP`))
@@ -124,7 +132,7 @@ export class Box {
             return;
         saveCollection(current, next);
         this.tab = "active";
-        this.page = 0;
+        this.scroll.scroll_to_item(0);
         this.feedback = `${species(companion.pokemon).name} accompagne ${target.program}.`;
         cx.notify();
     }
@@ -159,10 +167,7 @@ export class Box {
         const entries = collection.companions.map(companion => ({ companion, target: companion.terminal ? byKey.get(companion.terminal) : undefined }));
         const active = entries.filter(entry => entry.target).sort((a, b) => RANK[status(a)] - RANK[status(b)]);
         const reserve = entries.filter(entry => !entry.target).sort((a, b) => b.companion.xp - a.companion.xp || b.companion.id - a.companion.id);
-        const group = this.tab === "active" ? active : reserve;
-        const pages = Math.max(1, Math.ceil(group.length / PAGE_SIZE));
-        this.page = Math.min(this.page, pages - 1);
-        const shown = group.slice(this.page * PAGE_SIZE, (this.page + 1) * PAGE_SIZE);
+        const shown = this.tab === "active" ? active : this.tab === "reserve" ? reserve : [...active, ...reserve];
         const selected = shown.find(entry => entry.companion.id === this.selected) ?? shown[0];
         this.selected = selected?.companion.id;
         const columns = this.width >= 440 ? 2 : 1;
@@ -176,17 +181,11 @@ export class Box {
         }
         const tab = (id, label) => button(`box-tab-${id}`, label, t, event => {
             this.tab = id;
-            this.page = 0;
+            this.scroll.scroll_to_item(0);
             this.selected = undefined;
             this.feedback = "";
             event.notify();
         }, this.tab === id);
-        const changePage = (page, event) => {
-            this.page = page;
-            this.selected = undefined;
-            this.feedback = "";
-            event.notify();
-        };
         return v_flex().id("oaklabs-box").track_focus(this.focus).size_full().min_h(0).overflow_hidden()
             .rounded(BOX_RADIUS).border(1).border_color(t.border).bg(t.surface).text_color(t.foreground)
             .on_key_down((event, context) => {
@@ -202,8 +201,10 @@ export class Box {
             if (!offset)
                 return;
             const next = shown[shown.indexOf(selected) + offset];
-            if (next)
+            if (next) {
                 this.select(next.companion.id, context);
+                this.scroll.scroll_to_item(Math.floor(shown.indexOf(next) / columns));
+            }
             context.stop_propagation();
         })
             .on_size_change(({ width }, event) => {
@@ -212,21 +213,18 @@ export class Box {
             this.width = width;
             event.notify();
         })
-            .child(h_flex().h(60).flex_none().px(14).items_center().rounded_t(BOX_RADIUS - 1)
+            .child(h_flex().h(72).flex_none().px(18).items_center().rounded_t(BOX_RADIUS - 1)
             .border_b(3).border_color(SEAM).bg(RED).text_color(CREAM)
-            .child(v_flex().flex_1().child(title("Boîte PC", 27)).child(div().text_size(11).child("Compagnons")))
+            .child(v_flex().flex_1().gap(3).child(title("Boîte PC", 27)).child(div().text_size(11).child("Compagnons")))
             .child(div().id("box-close").size(28).rounded_full().bg(SEAM).flex().items_center().justify_center()
             .cursor_pointer().tooltip("Fermer la Boîte PC").on_click(() => this.close()).child(svg("mods/pane/close.svg").size(14))))
-            .child(v_flex().flex_1().min_h(0).gap(8).p(10)
-            .child(h_flex().flex_none().gap(7).child(tab("active", `Actifs · ${active.length}`)).child(tab("reserve", `Réserve · ${reserve.length}`)))
-            .child(v_flex().id("box-roster").flex_1().min_h(0).gap(8).overflow_y_scrollbar()
+            .child(v_flex().flex_1().min_h(0).gap(12).p(14)
+            .child(h_flex().flex_none().gap(7).child(tab("all", `Tous · ${entries.length}`))
+            .child(tab("active", `Actifs · ${active.length}`)).child(tab("reserve", `Réserve · ${reserve.length}`)))
+            .child(v_flex().id(`box-roster-${this.tab}`).track_scroll(this.scroll).flex_1().min_h(0).gap(10).overflow_y_scrollbar()
             .when(!rows.length, el => el.child(div().p(8).text_size(12).text_color(t.muted)
-            .child(this.tab === "active" ? "Un Pokémon rejoint la boîte quand un agent démarre dans un volet." : "Les anciens compagnons t’attendent ici.")))
+            .child(this.tab === "reserve" ? "Les anciens compagnons t’attendent ici." : "Un Pokémon rejoint la boîte quand un agent démarre dans un volet.")))
             .children(rows))
-            .when(pages > 1, el => el.child(h_flex().flex_none().gap(6).items_center().justify_center()
-            .when(this.page > 0, page => page.child(button("previous-page", "Précédente", t, event => changePage(this.page - 1, event))))
-            .child(div().text_size(11).text_color(t.muted).child(`${this.page + 1} / ${pages}`))
-            .when(this.page + 1 < pages, page => page.child(button("next-page", "Suivante", t, event => changePage(this.page + 1, event))))))
             .children(selected ? [this.detail(selected, t, activeTarget(targets))] : []));
     }
 }

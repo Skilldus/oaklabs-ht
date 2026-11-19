@@ -25,13 +25,13 @@ function toggleSidebar() {
 }
 
 function lens() {
-  return div().id("oaklabs-open-box").relative().size(34).flex_none().rounded_full().bg("#FFF6EE").shadow_sm()
+  return div().id("oaklabs-open-box").relative().size(44).flex_none().rounded_full().bg("#FFF6EE").shadow_sm()
     .cursor_pointer().tooltip("Ouvrir la Boîte PC")
     .on_mouse_down("left", (_e, cx) => cx.stop_propagation())
     .on_click(() => run("mod.open", { name: "oaklabs-companions" }))
-    .child(div().absolute().top(2).left(2).size(30).rounded_full().bg("#276BA5"))
-    .child(div().absolute().top(3).left(3).size(27).rounded_full().bg("#BCE8FF"))
-    .child(image("mods/oaklabs-brand/mew.png").absolute().top(1).left(1).size(32));
+    .child(div().absolute().top(2).left(2).size(40).rounded_full().bg("#276BA5"))
+    .child(div().absolute().top(3).left(3).size(37).rounded_full().bg("#BCE8FF"))
+    .child(image("mods/oaklabs-brand/mew.png").absolute().top(1).left(1).size(42));
 }
 
 function button(id: string, icon: "search" | "sidebar", action: () => void) {
@@ -59,7 +59,7 @@ export default class OakLabsBrand extends View {
         .child(h_flex().flex_1().min_w(0).overflow_hidden().gap(8).items_center()
           .child(lens())
           .child(div().min_w(0).font_family("Baloo 2").font_weight(800)
-            .text_size(trafficLights ? 15 : 21).line_height("22px")
+            .text_size(trafficLights ? 13 : 20).line_height("22px")
             .truncate().text_color("#FFF6EE").child("Mewltiplex")))
         .child(button("search", "search", () => run("mod.open", { name: "picker" }))))
       .when(!(collapsed && macos), el => el.child(button("sidebar-toggle", "sidebar", toggleSidebar)));

@@ -9,6 +9,7 @@ declare module "gpui-kit" {
     spawn(body: (cx: Context) => Promise<void>): void;
     readonly timer: { every(ms: number, callback: (cx: Context) => void): void };
     focus_handle(): FocusHandle;
+    write_to_clipboard(text: string): void;
   }
 
   export interface FocusHandle { focus(): void }
@@ -81,6 +82,7 @@ declare module "gpui-kit" {
     top(value: Length): this;
     tooltip(text: string): this;
     track_focus(handle: FocusHandle): this;
+    track_scroll(handle: import("gpui-base").ScrollHandle): this;
     truncate(): this;
     w(value: Length): this;
     w_full(): this;
@@ -103,4 +105,6 @@ declare module "gpui-base" {
 
   export function h_flex(): NativeElement;
   export function v_flex(): NativeElement;
+  export interface ScrollHandle { scroll_to_item(index: number): void }
+  export const ScrollHandle: { new: () => ScrollHandle };
 }

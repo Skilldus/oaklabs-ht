@@ -4,6 +4,7 @@ The file layouts/Mewltiplex.json adapts Herdr's defaults/layouts/main.json.
 The source src/oaklabs-brand/main.ts and its generated mods/oaklabs-brand/main.js adapt the header of Herdr's defaults/mods/workspace-chrome/main.js.
 The source src/oaklabs-pane/main.ts and its generated mods/oaklabs-pane/main.js adapt Herdr's defaults/mods/pane/main.js.
 The source src/oaklabs-companions/sidebar.ts and its generated mods/oaklabs-companions/sidebar.js adapt Herdr's defaults/mods/agents/main.js.
+The source src/oaklabs-companions/toast.ts and its generated mods/oaklabs-companions/toast.js adapt Herdr's defaults/mods/toast/main.js.
 The OakLabs layout changes the palette, pane frames and header styling.
 These adaptations are distributed under the Apache License, Version 2.0.
 See LICENSES/Apache-2.0.txt for the license and https://github.com/herdrdev/herdr-app for the upstream source.
@@ -13,4 +14,5 @@ Baloo 2 and Nunito are distributed under the SIL Open Font License 1.1. See the 
 The Mew illustration in mods/oaklabs-brand/mew.png comes from the OakLabs app's src/assets/pokemons/151.png. Pokémon and Mew belong to their respective rights holders.
 
 The companion catalogue uses French species names and primary types from the PokéAPI data files (https://github.com/PokeAPI/pokeapi/tree/master/data/v2/csv).
+The Pokédex entries and legendary/mythical categories use pokemon_species_flavor_text.csv and pokemon_species.csv at revision 193d8d4fbb57cf962e3f7c1ce5299a6fe847b3f8 of https://github.com/PokeAPI/pokeapi. Pokédex text belongs to the respective Pokémon rights holders.
 At runtime, companion sprites are downloaded from https://github.com/PokeAPI/sprites, including Pokémon Showdown battle sprites and the Black & White animated collection. Pokémon sprites belong to their respective rights holders.

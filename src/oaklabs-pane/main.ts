@@ -87,7 +87,7 @@ export default class Pane extends View {
     if (!p) return div();
     const name = p.name || ((p.program?.agent || p.program?.shell) && p.program.name) || p.title || p.program?.name || "shell";
     const companion = p.status ? paneCompanion(p.pane) : null;
-    const pic = companion?.path ? image(companion.path).id(`pane-sprite-${p.pane}`).size(20).flex_none() : icon(p.program, 14, INK);
+    const pic = companion?.path ? image(companion.path).id(`pane-sprite-${p.pane}`).size(30).flex_none() : icon(p.program, 16, INK);
     const st = p.status;
     const statusColor = st ? STATUS_COLORS[st] : undefined;
     const restColor = t.oak_pane_rest as Color | undefined;

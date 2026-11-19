@@ -4,7 +4,7 @@
   "overlay": {
     "kind": "dialog",
     "width": 540,
-    "height": 0.72,
+    "height": 0.85,
     "frame": "none"
   }
 }

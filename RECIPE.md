@@ -8,6 +8,8 @@ Un habillage pop de la fenêtre principale de Herdr App, inspiré du scanner et 
 
 La barre latérale de 268 px affiche l’en-tête Mewltiplex, les espaces et les agents. Dans l’en-tête, la lentille encadre Mew à gauche du titre. Settings et Add machine restent en bas. À droite, les onglets, le bouton `+`, Files et Changes gardent leur place au-dessus des volets de terminal. Les panneaux latéraux et la barre d’état sont ceux de `main`.
 
+Les bandeaux Mewltiplex et des onglets mesurent 60 px de haut. La lentille mesure 44 px, et les en-têtes des terminaux mesurent 40 px avec des sprites de 30 px. La Boîte PC comporte un bandeau de 72 px et une grille de cartes de 148 px. Les filtres Tous, Actifs et Réserve parcourent la collection dans une même zone défilante. Les cartes affichent leur espace, leur état, leur XP et un badge pour les légendaires ou fabuleux. Le survol du sprite affiche une description du Pokédex disponible hors ligne.
+
 Le rouge du boîtier entoure les volets arrondis dans les deux variantes. Les en-têtes des volets reprennent le cercle translucide et le bord inférieur ombré de `PokedexTile`. Baloo 2 ExtraBold sert pour les titres et Nunito SemiBold pour les chemins de fichiers. Le mode clair utilise le crème du Pokédex et le mode sombre l’ardoise du scanner. La palette vient des tokens `OAK` et de `TYPE_COLORS` dans le projet OakLabs.
 
 ## Interactions
@@ -22,7 +24,7 @@ Les en-têtes de terminaux reprennent les couleurs du Pokédex et des voyants du
 - Les deux fichiers de `themes/` définissent les surfaces, les états et les 16 couleurs ANSI. Le cadre arrondi peint le fond uni des volets. Le réglage `terminal_opacity: 0` laisse apparaître les coins de ce cadre.
 - `mods/oaklabs-brand/main.js` adapte l’en-tête de `workspace-chrome`. Il utilise `layout.resize` pour le rail et `mod.open` pour le sélecteur, avec les icônes déjà fournies par Herdr.
 - `mods/oaklabs-pane/main.js` adapte `pane`. Les boutons affichés au survol appellent `pane.split`, `pane.zoom` et `pane.close` avec l’identifiant du volet cliqué.
-- `mods/oaklabs-companions/` adapte la liste Agents de Herdr et fournit le dialogue de la Boîte PC. Le mod suit les fins de tour signalées par Herdr pour proposer la validation des missions et partage les sprites avec les en-têtes des volets.
+- `mods/oaklabs-companions/` adapte la liste Agents de Herdr et fournit le dialogue de la Boîte PC. Le mod suit les fins de tour signalées par Herdr pour proposer la validation des missions et partage les sprites avec les en-têtes des volets. Le champ `toast` du layout utilise ce même mod pour les notifications, qui affichent un sprite de 48 px à gauche du message et conservent l’action native.
 - Les fichiers JavaScript des mods sont générés depuis `src/` avec `npm run build`.
 
 ## Compatibilité

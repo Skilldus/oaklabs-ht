@@ -1,10 +1,20 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { assign, claimMission, emptyCollection, level, observe } from "../mods/oaklabs-companions/model.js";
+import { species } from "../mods/oaklabs-companions/catalog.js";
 
 const codex = { key: '["t1",1000]', program: "Codex", space: "OakLabs" };
 const claude = { key: '["t2",2000]', program: "Claude Code", space: "OakLabs" };
 const draw = used => used.has(151) ? 25 : 151;
+
+test("the Pokédex covers all drawable species, with distinct legendary and mythical flags", () => {
+  for (let id = 1; id <= 1025; id++) assert.ok(species(id).description.length > 0, `Missing Pokédex entry ${id}`);
+  assert.equal(species(151).rarity, "mythical");
+  assert.equal(species(150).rarity, "legendary");
+  assert.equal(species(25).rarity, null);
+  assert.equal(species(151).language, "fr");
+  assert.equal(species(1025).language, "en");
+});
 
 test("an agent retains its companion, even after its space or status changes", () => {
   const collection = observe(emptyCollection(), [codex, claude], draw);
