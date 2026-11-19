@@ -9,9 +9,10 @@
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "noEmitOnError": true,
+    "allowJs": true,
     "rootDir": "src",
     "outDir": "mods",
     "newLine": "lf"
   },
-  "include": ["src/**/*.ts", "types/**/*.d.ts"]
+  "include": ["src/**/*.ts", "src/**/*.js", "types/**/*.d.ts"]
 }

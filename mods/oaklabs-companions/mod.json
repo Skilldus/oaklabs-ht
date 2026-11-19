@@ -3,8 +3,8 @@
   "title": "Boîte PC",
   "overlay": {
     "kind": "dialog",
-    "width": 540,
-    "height": 0.85,
+    "width": 720,
+    "height": 0.94,
     "frame": "none"
   }
 }

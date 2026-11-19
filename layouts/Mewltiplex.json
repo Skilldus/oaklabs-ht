@@ -13,9 +13,14 @@
   },
   "preview": "layouts/Mewltiplex.png",
   "background": "canvas",
+  "ui_font": "Geist",
+  "font": "Geist Mono",
+  "font_size": 14,
+  "font_weight": 400,
+  "terminal_line_height": 1.2,
   "terminal_padding": [
-    14,
-    12
+    20,
+    20
   ],
   "terminal_opacity": 0,
   "divider": {
@@ -27,7 +32,7 @@
       "id": "sidebar",
       "type": "column",
       "size": {
-        "px": 268
+        "px": 296
       },
       "min": 44,
       "max": 480,
@@ -38,7 +43,7 @@
           "id": "brand",
           "type": "block",
           "size": {
-            "px": 60
+            "px": 64
           },
           "window_drag": true,
           "content": {
@@ -53,11 +58,11 @@
               "id": "spaces",
               "type": "block",
               "size": {
-                "weight": 1
+                "px": 192
               },
               "min": 90,
               "content": {
-                "mod": "spaces"
+                "mod": "oaklabs-spaces"
               }
             },
             {
@@ -80,10 +85,10 @@
           "id": "sidebar-footer",
           "type": "block",
           "size": {
-            "px": 69
+            "px": 144
           },
           "content": {
-            "mod": "workspace-chrome",
+            "mod": "oaklabs-brand",
             "props": {
               "footer": true
             }
@@ -100,11 +105,11 @@
           "id": "tabs",
           "type": "block",
           "size": {
-            "px": 60
+            "px": 64
           },
           "window_drag": true,
           "content": {
-            "mod": "tabs"
+            "mod": "oaklabs-tabs"
           }
         },
         {
@@ -114,8 +119,8 @@
             "gradient": ["#FF4257", "#E11030"],
             "angle": 160
           },
-          "padding": 8,
-          "gap": 8,
+          "padding": 12,
+          "gap": 12,
           "children": [
             {
               "id": "main",
@@ -123,9 +128,9 @@
               "content": {
                 "tab": "active",
                 "pane": {
-                  "gap": 8,
-                  "radius": 10,
-                  "shadow": "md",
+                  "gap": 12,
+                  "radius": 14,
+                  "shadow": "sm",
                   "background": "background",
                   "lone": true,
                   "border": {
@@ -140,7 +145,7 @@
                     "content": {
                       "mod": "oaklabs-pane"
                     },
-                    "height": 40,
+                    "height": 64,
                     "position": "top",
                     "reveal": "always"
                   }
@@ -186,7 +191,7 @@
           "id": "status",
           "type": "block",
           "size": {
-            "px": 28
+            "px": 30
           },
           "content": {
             "mod": "workspace-status"

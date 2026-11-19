@@ -51,11 +51,14 @@ async function harness() {
   const scroll = { scroll_to_item(index) { calls.push(["scroll", index]); } };
   const cx = { focus_handle: () => ({ focus() {} }), notify() {}, write_to_clipboard(text) { calls.push(["clipboard", text]); }, stop_propagation() {} };
   const mocks = {
-    "gpui-kit": { div: () => element(), image: path => element("image", path), svg: path => element("svg", path) },
+    "gpui-kit": { View: class {}, div: () => element(), image: path => element("image", path), svg: path => element("svg", path) },
     "gpui-base": { h_flex: () => element(), v_flex: () => element(), ScrollHandle: { new: () => scroll } },
     herdr: {
       props: () => props, theme: () => colors, checking: () => false,
       agents: () => agents, terminals: () => terminals, focused: () => ({ pane: "pane-2" }),
+      panes: () => agents.map(agent => ({ ...agent, terminal: agent.address, cwd: "/projects/oaklabs", name: null })),
+      home: () => "/home/test", layout: () => null,
+      openOverlay: spec => calls.push(["open", spec]),
       shared: key => shared.get(key), setShared: (key, value) => shared.set(key, value),
       closeOverlay: id => calls.push(["close", id]), run: (...args) => calls.push(["run", ...args]),
     },
@@ -80,7 +83,9 @@ async function harness() {
   await boxModule.evaluate();
   const toastModule = await load(new URL("../mods/oaklabs-companions/toast.js", import.meta.url).href);
   await toastModule.evaluate();
-  return { box: new boxModule.namespace.Box(cx), Toast: toastModule.namespace.Toast, shared, calls, cx,
+  const paneModule = await load(new URL("../mods/oaklabs-pane/main.js", import.meta.url).href);
+  await paneModule.evaluate();
+  return { box: new boxModule.namespace.Box(cx), Toast: toastModule.namespace.Toast, Pane: paneModule.namespace.default, shared, calls, cx,
     setProps(value) { props = value; } };
 }
 
@@ -109,6 +114,28 @@ test("mission validation still awards XP once from the combined collection", asy
   claim(null, cx);
   claim(null, cx);
   assert.equal(shared.get("oaklabs.companions.v1").companions[0].xp, 25);
+});
+
+test("pane controls keep their target when the toolbar adapts to a narrow split", async () => {
+  const state = await harness();
+  const { Pane, cx, calls } = state;
+  state.setProps({ pane: "pane-1" });
+  const pane = new Pane();
+  const wide = pane.render();
+  assert.ok(labels(wide).includes("/projects/oaklabs"));
+  find(wide, "ph-r-pane-1").attributes.on_click[0](null, cx);
+  assert.equal(calls.at(-1)[1], "pane.split");
+  assert.equal(calls.at(-1)[2].pane, "pane-1");
+  assert.equal(calls.at(-1)[2].direction, "right");
+  wide.attributes.on_size_change[0]({ width: 240 }, cx);
+  const narrow = pane.render();
+  assert.ok(!nodes(narrow).some(node => node.attributes.id?.[0] === "ph-r-pane-1"));
+  find(narrow, "ph-menu-pane-1").attributes.on_click[0](null, cx);
+  const opened = calls.at(-1);
+  assert.equal(opened[0], "open");
+  assert.equal(opened[1].mod, "menu");
+  assert.equal(opened[1].props.target.pane, "pane-1");
+  assert.equal(opened[1].props.target.terminal, "t1");
 });
 
 test("notifications resolve the exact agent and keep their original action", async () => {

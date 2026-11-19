@@ -26,7 +26,7 @@ function toggleSidebar() {
         setShared("sidebar.width", width);
     // Mods edited before the rail went by width still read the flag.
     setShared("sidebar.collapsed", !narrow());
-    run("layout.resize", { id: "sidebar", px: narrow() ? (shared("sidebar.width") ?? 268) : window()?.platform === "macos" ? 76 : 44 });
+    run("layout.resize", { id: "sidebar", px: narrow() ? (shared("sidebar.width") ?? 296) : window()?.platform === "macos" ? 76 : 44 });
 }
 // Drops what an agent puts before its title: a status glyph or spinner and the separator
 // after it ("✦  Working", "⠋ - Thinking"), and Codex's blinking "[ ! ] " / "[ . ] " mark.
@@ -65,7 +65,7 @@ const SORTS = [
     { id: "grouped", label: "Grouped by space", icon: "layers" },
 ];
 const sortOf = () => SORTS.find((s) => s.id === shared("agents.sort")) ?? SORTS[0];
-const SECTION = { 4: "Needs you", 3: "Done", 2: "Working", 1: "Idle" };
+const SECTION = { 4: "Attend ton aide", 3: "Terminé", 2: "En cours", 1: "Au repos" };
 const SECTION_STATUS = { 4: "blocked", 3: "done", 2: "working" };
 function duration(ms) {
     const m = Math.floor(ms / 60000);
@@ -329,7 +329,7 @@ export default class Agents extends View {
         const row = (a, i, subs = []) => {
             const companion = companions.get(a.address);
             const path = avatars.get(a.address);
-            const pic = path ? image(path).id(`sprite-${a.address}`).size(22).flex_none() : icon(a.program, 16, t.foreground);
+            const pic = path ? image(path).id(`sprite-${a.address}`).size(32).flex_none() : icon(a.program, 20, t.foreground);
             const more = detail.get(a.address);
             // An agent on another machine (`vps/t7`) says which.
             const machine = a.address.includes("/") ? a.address.split("/")[0] : null;
@@ -372,15 +372,16 @@ export default class Agents extends View {
             // Under a space header the space goes without saying; an automatic tab number says nothing.
             // Without a space header above (priority, pinned) the row names its space.
             const full = byPriority || isPinned;
-            const name = full ? a.space_name || label(a) : more ?? (/^\d+$/.test(label(a)) ? a.program?.name || label(a) : label(a));
+            const name = more ?? (full ? a.space_name || label(a) : (/^\d+$/.test(label(a)) ? a.program?.name || label(a) : label(a)));
+            const context = [a.program.name, full ? a.space_name : null, machine].filter(Boolean).join(" · ");
             return h_flex()
                 .id(`ag-${a.address}`)
-                .px(8)
-                .h(30)
+                .px(10)
+                .h(60)
                 .flex_none()
-                .rounded(8)
+                .rounded(10)
                 .items_center()
-                .gap(9)
+                .gap(10)
                 .when(a.focused, (el) => el.bg(t.selected))
                 .cursor_pointer()
                 .hover((s) => s.bg(t.hover))
@@ -392,7 +393,7 @@ export default class Agents extends View {
                 cx.notify();
             })
                 .on_click(() => run("pane.focus", { pane: a.pane }))
-                .children(pic ? [div().id(`agent-fold-${a.address}`)
+                .children(pic ? [div().id(`agent-fold-${a.address}`).size(32).flex_none().flex().items_center().justify_center()
                     .when(companion !== undefined, el => {
                     if (!companion)
                         return el;
@@ -403,10 +404,9 @@ export default class Agents extends View {
                     this.folded.has(a.address) ? this.folded.delete(a.address) : this.folded.add(a.address);
                     cx.notify();
                 })).child(pic)] : [])
-                .child(h_flex().flex_1().min_w(0).gap(5).items_center()
-                .child(div().min_w(0).max_w(full && more ? 120 : 200).truncate().text_color(idle ? t.muted : t.foreground).child(name))
-                .when(full && Boolean(more), el => el.child(div().flex_1().min_w(0).truncate().text_color(t.dim).child(`\u00b7 ${more}`))))
-                .when(Boolean(machine), el => el.child(div().text_size(10).text_color(t.dim).child(machine ?? "")))
+                .child(v_flex().flex_1().min_w(0).gap(4)
+                .child(div().truncate().font_medium().text_size(14).line_height("18px").tooltip(name).text_color(idle ? t.muted : t.foreground).child(name))
+                .child(div().truncate().text_size(12).line_height("16px").text_color(t.dim).tooltip(context).child(context)))
                 .when(subs.length > 0, el => el.child(fold(a, subs)))
                 .when(this.hovered === a.address, el => el.child(pin))
                 .when(this.hovered !== a.address && Boolean(when), el => el.child(div().flex_none().text_size(11).text_color(t.dim).child(duration(now - when))))
@@ -414,7 +414,7 @@ export default class Agents extends View {
         };
         // Groups in list order: spaces (grouped) or priority sections. Agents of a
         // space are next to each other in agents(), so neighbours make a group.
-        const groups = pinned.length ? [{ id: "pinned", label: "Pinned", status: null, members: pinned }] : [];
+        const groups = pinned.length ? [{ id: "pinned", label: "Épinglés", status: null, members: pinned }] : [];
         for (const a of rest) {
             const r = rankOf(a) || 1;
             const id = byPriority ? `sec-${r}` : `sp-${a.space}`;
@@ -430,13 +430,13 @@ export default class Agents extends View {
             const top = g.members.reduce((m, a) => ((RANK[a.status] ?? 0) > (RANK[m] ?? 0) ? a.status : m), "idle");
             return h_flex()
                 .id(g.id)
-                .px(8)
-                .pt(8)
-                .h(30)
+                .px(10)
+                .pt(4)
+                .h(32)
                 .flex_none()
                 .gap(6)
                 .items_center()
-                .text_size(11)
+                .text_size(12)
                 .font_medium()
                 .cursor_pointer()
                 .hover((s) => s.text_color(t.foreground))
@@ -458,18 +458,17 @@ export default class Agents extends View {
             .size_full()
             .min_h(0)
             .bg(t.chrome)
-            .border_t(1)
-            .border_color(t.border)
+            .font_family("Geist")
             .text_size(13)
             .when(!collapsed, (el) => el.child(h_flex()
-            .px(16)
-            .h(41)
-            .pt(14)
-            .pb(5)
+            .px(22)
+            .h(44)
             .flex_none()
             .items_center()
             .justify_between()
-            .child(div().text_size(11.5).font_medium().text_color(t.dim).child("Agents"))
+            .child(h_flex().gap(8).items_center()
+            .child(div().text_size(12).font_medium().text_color(t.dim).child("Agents"))
+            .child(div().px(5).py(1).rounded(5).border(1).border_color(t.border).text_size(11).text_color(t.dim).child(String(list.length))))
             .child(div()
             .id("ag-sort")
             .text_size(11)
@@ -478,8 +477,8 @@ export default class Agents extends View {
             .on_click(() => openOverlay({ mod: "oaklabs-companions", kind: "popup", width: 200, height: 140, props: { sortMenu: true } }))
             .tooltip(`Sort agents: ${sort.label}`)
             .child(svg(`mods/workspace-chrome/${sort.icon}.svg`).size(14)))))
-            .when(list.length === 0 && !collapsed, (el) => el.child(div().px(12).text_size(12).text_color(t.dim).child("No agent status yet. Agents show up here when they report their status. Older versions and agents inside tmux may not.")))
-            .child(v_flex().id("ag-list").flex_1().min_h(0).px(collapsed ? 0 : 8).overflow_y_scrollbar().mode("always").children(rows))
+            .when(list.length === 0 && !collapsed, (el) => el.child(div().px(22).text_size(13).text_color(t.dim).child("Les agents apparaissent ici lorsqu’ils signalent leur état.")))
+            .child(v_flex().id("ag-list").flex_1().min_h(0).px(collapsed ? 0 : 12).gap(4).overflow_y_scrollbar().mode("always").children(rows))
             .when(collapsed, (el) => el.child(h_flex()
             .h(28)
             .items_center()

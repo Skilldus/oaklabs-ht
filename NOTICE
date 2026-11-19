@@ -5,6 +5,7 @@ The source src/oaklabs-brand/main.ts and its generated mods/oaklabs-brand/main.j
 The source src/oaklabs-pane/main.ts and its generated mods/oaklabs-pane/main.js adapt Herdr's defaults/mods/pane/main.js.
 The source src/oaklabs-companions/sidebar.ts and its generated mods/oaklabs-companions/sidebar.js adapt Herdr's defaults/mods/agents/main.js.
 The source src/oaklabs-companions/toast.ts and its generated mods/oaklabs-companions/toast.js adapt Herdr's defaults/mods/toast/main.js.
+The JavaScript sources src/oaklabs-spaces/main.js and src/oaklabs-tabs/main.js, and their generated copies in mods/, adapt Herdr App 0.1.16 defaults/mods/spaces/main.js and defaults/mods/tabs/main.js. Their native interactions are retained with OakLabs typography and spacing.
 The OakLabs layout changes the palette, pane frames and header styling.
 These adaptations are distributed under the Apache License, Version 2.0.
 See LICENSES/Apache-2.0.txt for the license and https://github.com/herdrdev/herdr-app for the upstream source.

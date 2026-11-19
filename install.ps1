@@ -39,7 +39,7 @@ New-Item -ItemType Directory -Force -Path $layouts, $themes, $mods | Out-Null
 foreach ($theme in @('Mewltiplex-Clair', 'Mewltiplex-Sombre')) {
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot "themes/$theme.json") -Destination $themes -Force
 }
-foreach ($mod in @('oaklabs-brand', 'oaklabs-pane', 'oaklabs-companions')) {
+foreach ($mod in @('oaklabs-brand', 'oaklabs-pane', 'oaklabs-companions', 'oaklabs-spaces', 'oaklabs-tabs')) {
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot "mods/$mod") -Destination $mods -Recurse -Force
     if ((Invoke-Herdr @('check', (Join-Path $mods $mod))) -ne 0) {
         throw "Herdr could not load the $mod mod."

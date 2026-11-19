@@ -24,13 +24,13 @@ const COLORS: readonly (readonly [Color, Color])[] = [
 ];
 
 type MemberStatus = Status | "ready" | "reserve";
-const STATUS: Record<MemberStatus, { label: string; fill: Color }> = {
-  blocked: { label: "! Attend ton aide", fill: "#FF9579" },
-  working: { label: "◔ Travaille", fill: "#FFD23F" },
-  ready: { label: "✓ Prêt à valider", fill: "#85DCA1" },
-  done: { label: "✓ Terminé", fill: "#85DCA1" },
-  idle: { label: "○ Au repos", fill: "#BCE6FF" },
-  reserve: { label: "◇ En réserve", fill: "#E7DBF4" },
+const STATUS: Record<MemberStatus, { label: string; fill: Color; icon: string }> = {
+  blocked: { label: "Attend ton aide", fill: "#FF9579", icon: "clock" },
+  working: { label: "Travaille", fill: "#FFD23F", icon: "spinner" },
+  ready: { label: "Prêt à valider", fill: "#85DCA1", icon: "circle-check" },
+  done: { label: "Terminé", fill: "#85DCA1", icon: "check" },
+  idle: { label: "Au repos", fill: "#BCE6FF", icon: "clock" },
+  reserve: { label: "En réserve", fill: "#E7DBF4", icon: "archive" },
 };
 const RANK: Record<MemberStatus, number> = { blocked: 0, ready: 1, done: 2, working: 3, idle: 4, reserve: 5 };
 type Filter = "all" | "active" | "reserve";
@@ -44,13 +44,16 @@ function status(entry: Entry): MemberStatus {
 }
 
 function pill(kind: MemberStatus) {
-  const { label, fill } = STATUS[kind];
-  return h_flex().flex_none().h(19).px(6).rounded_full().items_center().bg(fill)
-    .text_color(INK).text_size(10.5).font_semibold().child(label);
+  const { label, fill, icon } = STATUS[kind];
+  return h_flex().flex_none().h(26).px(9).gap(6).rounded_full().items_center().bg(fill)
+    .text_color(INK).text_size(12).font_medium()
+    .child(svg(`mods/workspace-chrome/${icon}.svg`).size(13)
+      .when(kind === "working", el => el.spin(900)))
+    .child(label);
 }
 
 function title(text: string, size: number) {
-  return div().font_family("Baloo 2").font_weight(800).text_size(size).truncate().child(text);
+  return div().font_family("Geist").font_semibold().text_size(size).truncate().tooltip(text).child(text);
 }
 
 function progress(xp: number, track: Color, fill: Color) {
@@ -60,16 +63,16 @@ function progress(xp: number, track: Color, fill: Color) {
 }
 
 function button(id: string, label: string, t: Theme, onClick: (cx: Context) => void, primary = false) {
-  return h_flex().id(id).h(30).px(9).items_center().rounded(8).border(1)
+  return h_flex().id(id).h(36).px(12).items_center().rounded(8).border(1)
     .border_color(primary ? SEAM : t.border).bg(primary ? RED : t.raised)
-    .text_color(primary ? CREAM : t.foreground).text_size(12).font_semibold()
+    .text_color(primary ? CREAM : t.foreground).text_size(13).font_medium()
     .cursor_pointer().hover(el => el.bg(primary ? SEAM : t.selected)).on_click((_e, cx) => onClick(cx)).child(label);
 }
 
 export class Box {
   private tab: Filter = "all";
   private selected: number | undefined;
-  private width = 540;
+  private width = 720;
   private feedback = "";
   private readonly focus: FocusHandle;
   private readonly scroll: ScrollHandle;
@@ -101,24 +104,24 @@ export class Box {
     const program = entry.target ? companion.program : "Disponible";
     const rarity = pokemon.rarity === "mythical" ? "Fabuleux" : "Légendaire";
     const description = `${pokemon.name}${pokemon.rarity ? ` · ${rarity}` : ""}\n${pokemon.description}${pokemon.language === "en" ? "\nDescription du Pokédex en anglais" : ""}`;
-    return v_flex().id(`companion-${companion.id}`).relative().h(148).flex_1().min_w(0)
+    return v_flex().id(`companion-${companion.id}`).relative().h(192).flex_1().min_w(0)
       .overflow_hidden().rounded(15).border(2).border_color(this.selected === companion.id ? t.accent : edge)
       .bg(fill).text_color(INK).cursor_pointer().on_click((_e, event) => this.select(companion.id, event))
       .child(div().absolute().right(-15).bottom(16).size(112).rounded_full().bg("#FFFFFF4A"))
-      .child(div().id(`pokedex-sprite-${companion.id}`).absolute().right(6).bottom(34).size(82)
+      .child(div().id(`pokedex-sprite-${companion.id}`).absolute().right(10).bottom(45).size(82)
         .flex().items_center().justify_center().tooltip(description).child(visual))
       .child(div().absolute().left(0).right(0).bottom(0).h(3).bg(edge))
-      .child(v_flex().flex_1().gap(4).pt(9).px(10).pr(88)
-        .child(title(pokemon.name, 19))
-        .child(div().text_size(11).font_semibold().truncate().child(program))
-        .child(div().text_size(11).truncate().tooltip(companion.space || "Boîte PC").child(companion.space || "Boîte PC"))
-        .child(h_flex().child(pill(status(entry)))))
+      .child(v_flex().flex_1().gap(6).pt(16).pl(16).pr(94)
+        .child(title(pokemon.name, 21).line_height("26px"))
+        .child(div().text_size(13).font_medium().line_height("18px").truncate().tooltip(program).child(program))
+        .child(div().text_size(12).line_height("17px").truncate().tooltip(companion.space || "Boîte PC").child(companion.space || "Boîte PC"))
+        .child(h_flex().mt(3).child(pill(status(entry)))))
       .when(pokemon.rarity !== null, el => el.child(div().id(`rarity-${companion.id}`)
-        .absolute().right(8).top(8).size(22).rounded_full().bg(pokemon.rarity === "mythical" ? "#FFE0F4" : "#FFE38B")
-        .flex().items_center().justify_center().text_size(15).text_color(INK).tooltip(rarity)
-        .child(pokemon.rarity === "mythical" ? "✦" : "★")))
-      .child(v_flex().gap(3).px(8).pb(7)
-        .child(h_flex().justify_between().text_size(11).font_bold()
+        .absolute().right(10).top(12).h(24).px(7).rounded_full().bg(pokemon.rarity === "mythical" ? "#FFE0F4" : "#FFE38B")
+        .flex().items_center().justify_center().text_size(11).font_semibold().text_color(INK).tooltip(rarity)
+        .child(`${pokemon.rarity === "mythical" ? "✦" : "★"} ${rarity}`)))
+      .child(v_flex().gap(6).px(16).pb(14)
+        .child(h_flex().justify_between().text_size(12).font_medium()
           .child(`Niv. ${level(companion.xp)}`).child(`${companion.xp % LEVEL_XP} / ${LEVEL_XP} XP`))
         .child(progress(companion.xp, "#14161D32", "#302247")));
   }
@@ -159,22 +162,22 @@ export class Box {
     const pokemon = species(companion.pokemon);
     const mission = companion.pending[0];
     const location = companion.program && companion.space ? `${companion.program} · ${companion.space}` : "Boîte PC";
-    return v_flex().flex_none().gap(6).p(9).rounded(11).border(1).border_color(t.border).bg(t.raised)
-      .child(h_flex().gap(6).items_center()
-        .child(v_flex().flex_1().min_w(0).child(title(pokemon.name, 19))
-          .child(div().text_size(11).text_color(t.muted).truncate().child(location)))
+    return v_flex().flex_none().gap(12).pt(16).border_t(1).border_color(t.border)
+      .child((this.width < 480 ? v_flex() : h_flex()).gap(12).items_center()
+        .child(v_flex().flex_1().min_w(0).gap(4).child(title(pokemon.name, 20))
+          .child(div().text_size(12).text_color(t.muted).truncate().tooltip(location).child(location)))
         .child(pill(status(entry))))
-      .child(h_flex().justify_between().text_size(11).font_semibold().text_color(t.muted)
+      .child(h_flex().justify_between().text_size(12).font_medium().text_color(t.muted)
         .child(`Niv. ${level(companion.xp)}`).child(`${companion.xp % LEVEL_XP} / ${LEVEL_XP} XP`))
-      .child(progress(companion.xp, t.surface, t.accent))
-      .child(h_flex().gap(6).items_center()
+      .child(progress(companion.xp, t.chrome, t.accent))
+      .child((this.width < 480 ? v_flex() : h_flex()).gap(8)
         .when(Boolean(entry.target), el => el.child(button("focus-agent", "Voir le volet", t, () => this.openPane(entry))))
         .when(!entry.target && target !== undefined, el => el.child(button("associate-agent", "Associer au volet", t, event => this.associate(companion, event), !mission)))
         .when(Boolean(mission), el => el.child(button("claim-mission", `Valider · +${MISSION_XP} XP`, t, event => {
           if (mission) this.validateMission(companion, mission, event);
         }, true))))
-      .when(!entry.target && !target && !this.feedback, el => el.child(div().text_size(11).text_color(t.muted).child("Sélectionne un volet d’agent pour y associer ce compagnon.")))
-      .when(Boolean(this.feedback), el => el.child(div().text_size(11).text_color(t.foreground).child(this.feedback)));
+      .when(!entry.target && !target && !this.feedback, el => el.child(div().text_size(12).text_color(t.muted).child("Sélectionne un volet d’agent pour y associer ce compagnon.")))
+      .when(Boolean(this.feedback), el => el.child(div().text_size(12).text_color(t.foreground).child(this.feedback)));
   }
 
   render(cx: Context) {
@@ -188,11 +191,11 @@ export class Box {
     const shown = this.tab === "active" ? active : this.tab === "reserve" ? reserve : [...active, ...reserve];
     const selected = shown.find(entry => entry.companion.id === this.selected) ?? shown[0];
     this.selected = selected?.companion.id;
-    const columns = this.width >= 440 ? 2 : 1;
+    const columns = this.width >= 640 ? 2 : 1;
     const rows = [];
     for (let i = 0; i < shown.length; i += columns) {
       const slice = shown.slice(i, i + columns);
-      const row = h_flex().gap(9).flex_none().children(slice.map(entry => this.card(entry, t, cx)));
+      const row = h_flex().gap(12).flex_none().children(slice.map(entry => this.card(entry, t, cx)));
       if (slice.length < columns) row.child(div().flex_1());
       rows.push(row);
     }
@@ -205,6 +208,7 @@ export class Box {
     }, this.tab === id);
     return v_flex().id("oaklabs-box").track_focus(this.focus).size_full().min_h(0).overflow_hidden()
       .rounded(BOX_RADIUS).border(1).border_color(t.border).bg(t.surface).text_color(t.foreground)
+      .font_family("Geist")
       .on_key_down((event, context) => {
         if (!selected) return;
         if (event.key === "enter") {
@@ -226,15 +230,15 @@ export class Box {
         this.width = width;
         event.notify();
       })
-      .child(h_flex().h(72).flex_none().px(18).items_center().rounded_t(BOX_RADIUS - 1)
-        .border_b(3).border_color(SEAM).bg(RED).text_color(CREAM)
-        .child(v_flex().flex_1().gap(3).child(title("Boîte PC", 27)).child(div().text_size(11).child("Compagnons")))
-        .child(div().id("box-close").size(28).rounded_full().bg(SEAM).flex().items_center().justify_center()
+      .child(h_flex().h(88).flex_none().px(24).items_center().rounded_t(BOX_RADIUS - 1)
+        .bg(RED).text_color(CREAM)
+        .child(v_flex().flex_1().gap(5).child(title("Boîte PC", 26)).child(div().text_size(13).child("Les compagnons de tes agents")))
+        .child(div().id("box-close").size(32).rounded(8).bg(SEAM).flex().items_center().justify_center()
           .cursor_pointer().tooltip("Fermer la Boîte PC").on_click(() => this.close()).child(svg("mods/pane/close.svg").size(14))))
-      .child(v_flex().flex_1().min_h(0).gap(12).p(14)
-        .child(h_flex().flex_none().gap(7).child(tab("all", `Tous · ${entries.length}`))
+      .child(v_flex().flex_1().min_h(0).gap(16).p(20)
+        .child(h_flex().flex_none().gap(8).child(tab("all", `Tous · ${entries.length}`))
           .child(tab("active", `Actifs · ${active.length}`)).child(tab("reserve", `Réserve · ${reserve.length}`)))
-        .child(v_flex().id(`box-roster-${this.tab}`).track_scroll(this.scroll).flex_1().min_h(0).gap(10).overflow_y_scrollbar()
+        .child(v_flex().id(`box-roster-${this.tab}`).track_scroll(this.scroll).flex_1().min_h(0).gap(12).overflow_y_scrollbar()
           .when(!rows.length, el => el.child(div().p(8).text_size(12).text_color(t.muted)
             .child(this.tab === "reserve" ? "Les anciens compagnons t’attendent ici." : "Un Pokémon rejoint la boîte quand un agent démarre dans un volet.")))
           .children(rows))

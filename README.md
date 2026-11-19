@@ -1,6 +1,6 @@
 # Mewltiplex pour Herdr
 
-Le thème reprend le style pop d’OakLabs. Mew apparaît dans la lentille du scanner, à côté du titre « Mewltiplex ». Les en-têtes des terminaux reprennent les couleurs franches, le bord ombré et la typographie arrondie des cartes du Pokédex. Herdr applique la variante claire crème ou la variante sombre ardoise selon son réglage d’apparence.
+Le thème reprend le style pop d’OakLabs avec une typographie Geist et des espacements réguliers. Mew apparaît dans la lentille du scanner, à côté du titre « Mewltiplex ». Le boîtier rouge et les en-têtes colorés encadrent les terminaux ; les cartes de la Boîte PC conservent les fonds par type, le cercle translucide et le bord ombré des tuiles du Pokédex. Herdr applique la variante claire crème ou la variante sombre ardoise selon son réglage d’apparence.
 
 ![Mewltiplex en mode sombre dans Herdr App](preview.png)
 
@@ -35,7 +35,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
 sh ./install.sh
 ```
 
-Les scripts installent ou mettent à jour les fichiers du thème dans le profil Herdr. Ils vérifient les trois mods et activent **Mewltiplex** si l’application est ouverte. Après une installation avec l’application fermée, ouvrez Herdr et sélectionnez **Mewltiplex** dans **Settings → Look → Layout**. Les palettes s’affichent sous les noms **Mewltiplex Clair** et **Mewltiplex Sombre**.
+Les scripts installent ou mettent à jour les fichiers du thème dans le profil Herdr. Ils vérifient les cinq mods et activent **Mewltiplex** si l’application est ouverte. Après une installation avec l’application fermée, ouvrez Herdr et sélectionnez **Mewltiplex** dans **Settings → Look → Layout**. Les palettes s’affichent sous les noms **Mewltiplex Clair** et **Mewltiplex Sombre**.
 
 Sur les trois systèmes, le profil se trouve par défaut dans `~/.config/herdr-app` (`%USERPROFILE%\.config\herdr-app` sous Windows). `HERDR_APP_HOME` désigne un profil personnalisé et `XDG_CONFIG_HOME` permet de changer le dossier de configuration parent.
 
@@ -57,6 +57,8 @@ Remplacez le chemin par celui de votre dépôt. Le script met à jour le thème 
 
 Cliquez sur Mew, dans la lentille de l’en-tête, pour ouvrir la Boîte PC. Chaque agent qui démarre dans un volet reçoit un Pokémon tiré au sort parmi les 1 025 espèces du Pokédex. Son sprite apparaît aussi dans la liste Agents et dans l’en-tête de son volet.
 
+Le raccourci **Boîte PC**, au bas de la barre latérale, ouvre aussi la collection. Les cartes utilisent des noms de 21 px, des informations secondaires de 12–13 px, des badges d’état avec icônes et des badges de rareté nommés. [Voir la Boîte PC dans Herdr](preview-box.png).
+
 - **Tous** affiche la collection complète à l’ouverture de la boîte. La grille défile pour parcourir tous les compagnons obtenus. Chaque carte indique son espace.
 - **Actifs** filtre les compagnons associés à un volet et affiche l’état de leurs agents. Sélectionnez une carte puis **Voir le volet** pour y accéder.
 - **Valider · +25 XP** apparaît quand Herdr signale une mission terminée. Le compagnon gagne un niveau tous les 100 XP.
@@ -71,16 +73,17 @@ Le premier affichage d’une espèce utilise `curl` (`curl.exe` sous Windows) po
 
 ## Structure
 
-- [`layouts/Mewltiplex.json`](layouts/Mewltiplex.json) reprend l’arbre et les dimensions du layout `main`. Les espaces, les onglets et les panneaux Files et Changes utilisent les mods fournis par Herdr.
+- [`layouts/Mewltiplex.json`](layouts/Mewltiplex.json) adapte l’arbre du layout `main` avec des bandeaux de 64 px, des volets arrondis et une barre latérale de 296 px. Les panneaux Files et Changes utilisent les mods fournis par Herdr.
 - [`themes/`](themes) contient les variantes claire et sombre, les palettes ANSI et les couleurs d’état.
-- [`mods/oaklabs-brand/`](mods/oaklabs-brand) affiche Mew dans la lentille à côté du titre « Mewltiplex ». [`mods/oaklabs-pane/`](mods/oaklabs-pane) habille les en-têtes de terminaux avec les couleurs des cartes. Les deux mods reprennent les commandes, les dimensions et les emplacements des boutons de Herdr.
+- [`mods/oaklabs-brand/`](mods/oaklabs-brand) affiche Mew, le titre « Mewltiplex » et le pied de la barre latérale. [`mods/oaklabs-pane/`](mods/oaklabs-pane) affiche les titres et les chemins sur deux lignes avec des commandes de volet à emplacement fixe et un menu adapté aux petits volets.
+- [`mods/oaklabs-spaces/`](mods/oaklabs-spaces) et [`mods/oaklabs-tabs/`](mods/oaklabs-tabs) sont des clones des mods Herdr 0.1.16, adaptés à la typographie et aux espacements du thème. Ils conservent les menus, les déplacements, les worktrees, les machines et les commandes des panneaux.
 - [`mods/oaklabs-companions/`](mods/oaklabs-companions) adapte la liste Agents, affiche la Boîte PC et habille les notifications. Les compagnons et leur progression sont conservés dans l’état partagé du profil Herdr.
 
 Les fichiers portent un nom propre au thème. Le layout `main`, les raccourcis et les préférences de Herdr restent disponibles dans la même installation. Voir [RECIPE.md](RECIPE.md) pour les détails et [NOTICE](NOTICE) pour les attributions.
 
 ## Développement
 
-Les sources TypeScript des mods sont dans [`src/`](src). Les fichiers JavaScript générés dans `mods/` sont versionnés pour l’installation directe dans Herdr.
+Les sources des mods sont dans [`src/`](src). Les mods de marque, de volets et de compagnons sont en TypeScript ; les clones Spaces et Tabs conservent le JavaScript amont. `tsc` compile les premiers et recopie les seconds. Les fichiers générés dans `mods/` sont versionnés pour l’installation directe dans Herdr.
 
 ```sh
 npm ci

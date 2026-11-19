@@ -1,8 +1,8 @@
 // Source: src/oaklabs-pane/main.ts. Regenerate main.js with npm run build.
 // Adapted from Herdr's pane header (Apache-2.0, see NOTICE).
 import { View, div, svg, image } from "gpui-kit";
-import { h_flex } from "gpui-base";
-import { panes, props, run, theme, home, layout, shared } from "herdr";
+import { h_flex, v_flex } from "gpui-base";
+import { panes, props, run, theme, home, layout, shared, openOverlay } from "herdr";
 const INK = "#14161D";
 const STATUS_COLORS = {
     working: "#FFD23F",
@@ -48,7 +48,7 @@ function folder(cwd) {
     return cwd === h ? "~" : cwd.startsWith(h + "/") ? "~" + cwd.slice(h.length) : cwd;
 }
 export default class Pane extends View {
-    init() { this.hovered = false; }
+    width = 600;
     me() {
         const pane = props()?.pane;
         return panes().find((p) => p.pane === pane);
@@ -56,16 +56,16 @@ export default class Pane extends View {
     button(id, icon, command, args) {
         return div()
             .id(id)
-            .p(3)
-            .rounded_full()
-            .bg("#FFFFFF59")
+            .size(24).flex_none().flex().items_center().justify_center()
+            .rounded(6).cursor_pointer()
+            .tooltip(icon === "split-right" ? "Scinder à droite" : icon === "split-down" ? "Scinder en dessous" : icon === "close" ? "Fermer le volet" : "Agrandir ou restaurer le volet")
             .text_color(INK)
-            .hover((s) => s.bg("#FFFFFF"))
+            .hover((s) => s.bg("#FFFFFF59"))
             .on_click((_e, cx) => {
             cx.stop_propagation();
             run(command, args);
         })
-            .child(svg(`mods/pane/${icon}.svg`).size(14));
+            .child(svg(`mods/pane/${icon}.svg`).size(13));
     }
     render() {
         const t = theme();
@@ -74,7 +74,7 @@ export default class Pane extends View {
             return div();
         const name = p.name || ((p.program?.agent || p.program?.shell) && p.program.name) || p.title || p.program?.name || "shell";
         const companion = p.status ? paneCompanion(p.pane) : null;
-        const pic = companion?.path ? image(companion.path).id(`pane-sprite-${p.pane}`).size(30).flex_none() : icon(p.program, 16, INK);
+        const pic = companion?.path ? image(companion.path).id(`pane-sprite-${p.pane}`).size(this.width < 280 ? 22 : 30).flex_none() : icon(p.program, 16, INK);
         const st = p.status;
         const statusColor = st ? STATUS_COLORS[st] : undefined;
         const restColor = t.oak_pane_rest;
@@ -83,37 +83,52 @@ export default class Pane extends View {
         const frame = paneFrame(layout());
         const bottom = frame?.header?.position === "bottom";
         const radius = Math.max(0, (frame?.radius ?? 0) - 1);
+        const compact = this.width < 380;
+        const tight = this.width < 280;
         return h_flex()
             .id(`pane-head-${pane}`)
             .size_full()
             .relative()
             .overflow_hidden()
-            .px(10)
-            .gap(8)
+            .px(tight ? 8 : 14)
+            .gap(tight ? 6 : 10)
             .items_center()
             .bg(color)
             .when(bottom, el => el.rounded_b(radius).border_t(1))
             .when(!bottom, el => el.rounded_t(radius).border_b(1))
-            .border_color(INK)
-            .text_size(12)
-            .on_hover((hovered, cx) => { this.hovered = hovered; cx.notify(); })
+            .border_color("#14161D26")
+            .font_family("Geist").text_size(13)
+            .on_size_change(({ width }, cx) => {
+            if (this.width !== width) {
+                this.width = width;
+                cx.notify();
+            }
+        })
             .on_click(() => run("pane.focus", { pane }))
-            .child(div().absolute().right(20).top(-29).size(104).rounded_full().bg("#FFFFFF38"))
-            .child(div().absolute().left(0).right(0).h(3).bg("#14161D45")
-            .when(bottom, el => el.top(0))
-            .when(!bottom, el => el.bottom(0)))
             .children(pic ? [pic] : [])
-            .child(div().flex_none().truncate().max_w(260).font_family("Baloo 2").font_weight(800).text_size(14).text_color(INK).child(name))
-            .when(companion !== null, el => el.child(div().flex_none().px(5).rounded_full().bg("#FFFFFF59")
-            .font_semibold().text_size(10).text_color(INK).child(`Niv. ${companion?.level}`)))
-            .child(div().flex_1().truncate().font_family("Nunito").font_weight(600).text_color(INK).child(folder(p.cwd)))
+            .child(v_flex().h(42).flex_1().min_w(0).gap(4).text_color(INK)
+            .child(h_flex().h(22).flex_none().gap(8).items_center()
+            .child(div().flex_1().min_w(0).truncate().font_semibold().text_size(14).line_height("18px").tooltip(name).child(name))
+            .when(companion !== null && !compact, el => el.child(div().flex_none().px(6).py(2).rounded(5).bg("#FFFFFF59")
+            .font_medium().text_size(11).child(`Niv. ${companion?.level}`))))
+            .child(div().h(16).flex_none().truncate().text_size(12).line_height("16px").tooltip(folder(p.cwd)).child(folder(p.cwd))))
             .when(st === "working", el => el.child(svg("mods/workspace-chrome/spinner.svg").size(12).flex_none().text_color(INK).spin(900)))
-            .when(st === "blocked", el => el.child(div().flex_none().px(6).h(18).flex().items_center().rounded_full().bg("#FFFFFF59").text_size(10.5).font_semibold().text_color(INK).child("Needs you")))
+            .when(st === "blocked", el => el.child(div().id(`pane-attention-${pane}`).size(18).flex_none().rounded_full().bg("#FFFFFF59")
+            .flex().items_center().justify_center().text_size(12).font_semibold().text_color(INK).tooltip("Attend ton aide").child("!")))
             .when(st === "done", el => el.child(div().size(7).flex_none().rounded(4).bg(INK)))
-            .when(this.hovered, el => el
+            .child(h_flex().flex_none().gap(2).items_center()
+            .when(!compact, el => el
             .child(this.button(`ph-r-${pane}`, "split-right", "pane.split", { direction: "right", pane }))
-            .child(this.button(`ph-d-${pane}`, "split-down", "pane.split", { direction: "down", pane }))
+            .child(this.button(`ph-d-${pane}`, "split-down", "pane.split", { direction: "down", pane })))
+            .when(compact, el => el.child(div().id(`ph-menu-${pane}`).size(24).flex_none().flex().items_center().justify_center()
+            .rounded(6).text_color(INK).text_size(16).cursor_pointer().tooltip("Commandes du volet")
+            .hover(style => style.bg("#FFFFFF59"))
+            .on_click((_e, cx) => {
+            cx.stop_propagation();
+            openOverlay({ mod: "menu", kind: "popup", width: 220, height: 300, props: { tab: "pane", target: { pane, terminal: p.terminal } } });
+        }).child(svg("mods/oaklabs-pane/more.svg").size(14))))
+            .when(!tight, el => el
             .child(this.button(`ph-z-${pane}`, p.zoomed ? "unzoom" : "zoom", "pane.zoom", { pane }))
-            .child(this.button(`ph-x-${pane}`, "close", "pane.close", { pane })));
+            .child(this.button(`ph-x-${pane}`, "close", "pane.close", { pane }))));
     }
 }

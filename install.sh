@@ -15,7 +15,7 @@ unset CLAUDECODE CLAUDE_CODE_CHILD_SESSION CLAUDE_CODE_ENTRYPOINT CLAUDE_CODE_EX
 
 mkdir -p "$config/layouts" "$config/themes" "$config/mods"
 cp "$repo/themes/Mewltiplex-Clair.json" "$repo/themes/Mewltiplex-Sombre.json" "$config/themes/"
-for mod in oaklabs-brand oaklabs-pane oaklabs-companions; do
+for mod in oaklabs-brand oaklabs-pane oaklabs-companions oaklabs-spaces oaklabs-tabs; do
     cp -R "$repo/mods/$mod" "$config/mods/"
     "$app" check "$config/mods/$mod"
 done
