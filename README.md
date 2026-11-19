@@ -41,6 +41,18 @@ Sur les trois systèmes, le profil se trouve par défaut dans `~/.config/herdr-a
 
 Pour retrouver la fenêtre d’origine, sélectionnez **Herdr** dans **Settings → Look → Layout** ou lancez `herdr-app do layout.switch --name main`.
 
+## Mise à jour
+
+Sous Windows, ouvrez **PowerShell** et placez-vous dans le dossier où vous avez cloné le dépôt. Récupérez les dernières modifications, puis relancez l’installateur après la réussite de `git pull`.
+
+```powershell
+cd "C:\chemin\vers\oaklabs-ht"
+git pull --ff-only
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
+```
+
+Remplacez le chemin par celui de votre dépôt. Le script met à jour le thème installé et le réactive si Herdr est ouvert. Si Herdr était fermé, ouvrez-le puis sélectionnez **Settings → Look → Layout → Mewltiplex**.
+
 ## Boîte PC
 
 Cliquez sur Mew, dans la lentille de l’en-tête, pour ouvrir la Boîte PC. Chaque agent qui démarre dans un volet reçoit un Pokémon tiré au sort parmi les 1 025 espèces du Pokédex. Son sprite apparaît aussi dans la liste Agents et dans l’en-tête de son volet.
