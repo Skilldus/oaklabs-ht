@@ -92,7 +92,6 @@ export class Box {
             .child(div().absolute().right(-15).bottom(16).size(112).rounded_full().bg("#FFFFFF4A"))
             .child(div().id(`pokedex-sprite-${companion.id}`).absolute().right(10).bottom(45).size(82)
             .flex().items_center().justify_center().tooltip(description).child(visual))
-            .child(div().absolute().left(0).right(0).bottom(0).h(3).bg(edge))
             .child(v_flex().flex_1().gap(6).pt(16).pl(16).pr(94)
             .child(title(pokemon.name, 21).line_height("26px"))
             .child(div().text_size(13).font_medium().line_height("18px").truncate().tooltip(program).child(program))
