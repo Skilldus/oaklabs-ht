@@ -15,7 +15,7 @@ Dans la Boîte PC, les dix-huit fonds par type restent ceux d’origine. Le cerc
 | Élément | Changement intégré |
 | --- | --- |
 | Interface | Geist, avec des graisses régulière, moyenne et semi-grasse ; remplacement de Baloo 2 et Nunito dans les titres et chemins. |
-| Terminal | Geist Mono 14 px, graisse 400, interligne de 1,2 et marges de 20 px. |
+| Terminal | Police et taille choisies dans les réglages Herdr, graisse 400, interligne de 1,2 et marges de 20 px. Le choix Geist Mono 14 px du layout initial a été retiré car il empêchait de modifier ces réglages. |
 | Barre latérale | Largeur de 296 px ; zone Espaces de 192 px et zone Agents occupant la hauteur restante, chacune défilante. |
 | Navigation | Lignes de projets de 44 px, onglets de 36 px, bandeaux supérieurs de 64 px. |
 | Agents | Lignes de 60 px : titre de 14 px, contexte de 12 px, sprite de 32 px ; nombre d’agents dans l’en-tête. |

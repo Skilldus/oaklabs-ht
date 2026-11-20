@@ -14,8 +14,6 @@
   "preview": "layouts/Mewltiplex.png",
   "background": "canvas",
   "ui_font": "Geist",
-  "font": "Geist Mono",
-  "font_size": 14,
   "font_weight": 400,
   "terminal_line_height": 1.2,
   "terminal_padding": [
