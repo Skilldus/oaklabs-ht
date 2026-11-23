@@ -5,6 +5,7 @@ import { agents, terminals, panes, focused, spaces, run, theme, shared, setShare
 import { species } from "./catalog.js";
 import { liveAgents, refreshCollection } from "./live.js";
 import { level } from "./model.js";
+import { milestone } from "./milestone.js";
 import { sprite } from "./sprites.js";
 function agentProps() { return (props() ?? {}); }
 function find(node, id) {
@@ -64,6 +65,8 @@ const SORTS = [
     { id: "priority", label: "Priority", icon: "clock" },
     { id: "grouped", label: "Grouped by space", icon: "layers" },
 ];
+// Keep these fills in sync with the space initials in oaklabs-spaces/main.js.
+const SPACE_MARK = { ansi6: "#22a99a", ansi3: "#e3814f", ansi4: "#5b8def", ansi5: "#8b7cf6", ansi2: "#3fae6a", ansi1: "#d9649a" };
 const sortOf = () => SORTS.find((s) => s.id === shared("agents.sort")) ?? SORTS[0];
 const SECTION = { 4: "Attend ton aide", 3: "Terminé", 2: "En cours", 1: "Au repos" };
 const SECTION_STATUS = { 4: "blocked", 3: "done", 2: "working" };
@@ -107,7 +110,21 @@ export default class Agents extends View {
         if (!this.pendingPins.length)
             localStorage.removeItem("pins");
         this.migratingPins = new Set();
+        this.milestoneRanks = new Map();
+        this.celebratingUntil = new Map();
         cx.timer.every(30000, (cx) => cx.notify());
+        cx.timer.every(500, (cx) => {
+            const now = Date.now();
+            let expired = false;
+            for (const [id, until] of this.celebratingUntil) {
+                if (until <= now) {
+                    this.celebratingUntil.delete(id);
+                    expired = true;
+                }
+            }
+            if (expired)
+                cx.notify();
+        });
     }
     // Stamps agents whose state changed. Done and idle count as one: looking at a
     // finished agent turns done into idle, and looking isn't the agent doing anything.
@@ -244,11 +261,20 @@ export default class Agents extends View {
             return this.sortMenu(t);
         const collapsed = narrow();
         const sort = sortOf();
+        const spaceColors = (shared("space.colors") ?? {});
         let list = agents();
         this.listed = new Map(list.map((a) => [a.address, a.status]));
         const all = terminals();
         const targets = liveAgents(list, all);
         const collection = refreshCollection(targets);
+        for (const companion of collection.companions) {
+            const rank = Number(milestone(companion.xp)?.mark ?? 0);
+            const previous = this.milestoneRanks.get(companion.id);
+            if (previous !== undefined && previous < 10 && rank === 10) {
+                this.celebratingUntil.set(companion.id, Date.now() + 1800);
+            }
+            this.milestoneRanks.set(companion.id, rank);
+        }
         const assigned = new Map(collection.companions.map(companion => [companion.terminal, companion]));
         const companions = new Map(targets.map(target => [target.agent.address, assigned.get(target.key)]));
         const avatars = new Map([...companions].map(([address, companion]) => [address, companion ? sprite(companion.pokemon, cx) : null]));
@@ -327,7 +353,10 @@ export default class Agents extends View {
                 detail.set(a.address, label(a));
         }
         const row = (a, i, subs = []) => {
+            const spaceColor = spaceColors[a.space] ?? "ansi6";
+            const spaceFill = spaceColor.startsWith("#") ? spaceColor : (SPACE_MARK[spaceColor] ?? t[spaceColor] ?? "#22a99a");
             const companion = companions.get(a.address);
+            const stage = companion ? milestone(companion.xp) : null;
             const path = avatars.get(a.address);
             const pic = path ? image(path).id(`sprite-${a.address}`).size(32).flex_none() : icon(a.program, 20, t.foreground);
             const more = detail.get(a.address);
@@ -376,6 +405,7 @@ export default class Agents extends View {
             const context = [a.program.name, full ? a.space_name : null, machine].filter(Boolean).join(" · ");
             return h_flex()
                 .id(`ag-${a.address}`)
+                .relative()
                 .px(10)
                 .h(60)
                 .flex_none()
@@ -393,17 +423,23 @@ export default class Agents extends View {
                 cx.notify();
             })
                 .on_click(() => run("pane.focus", { pane: a.pane }))
-                .children(pic ? [div().id(`agent-fold-${a.address}`).size(32).flex_none().flex().items_center().justify_center()
+                .child(div().id(`space-accent-${a.address}`).absolute().left(1).top(9).bottom(9).w(4).rounded(2).bg(spaceFill))
+                .children(pic ? [div().id(`agent-fold-${a.address}`).relative().size(32).flex_none().flex().items_center().justify_center()
                     .when(companion !== undefined, el => {
                     if (!companion)
                         return el;
-                    return el.tooltip(`${species(companion.pokemon).name} · Niv. ${level(companion.xp)} · ${a.program.name}`);
+                    return el.tooltip(`${species(companion.pokemon).name} · Niv. ${level(companion.xp)}${stage ? ` · ${stage.label}` : ""} · ${a.program.name}`);
                 })
                     .when(subs.length > 0, el => el.on_click((_e, cx) => {
                     cx.stop_propagation();
                     this.folded.has(a.address) ? this.folded.delete(a.address) : this.folded.add(a.address);
                     cx.notify();
-                })).child(pic)] : [])
+                })).child(pic)
+                    .when(Boolean(stage && path), el => el.child(div().id(`milestone-agent-${a.address}`)
+                    .absolute().right(-5).bottom(-4).size(21).flex().items_center().justify_center()
+                    .when(Boolean(companion && (this.celebratingUntil.get(companion.id) ?? 0) > now), el => el.spin(900))
+                    .tooltip(`${stage?.label} · palier atteint au niveau ${stage?.level}`)
+                    .child(image(`mods/oaklabs-companions/badges/${stage?.mark ?? "1"}.png`).size(21))))] : [])
                 .child(v_flex().flex_1().min_w(0).gap(4)
                 .child(div().truncate().font_medium().text_size(14).line_height("18px").tooltip(name).text_color(idle ? t.muted : t.foreground).child(name))
                 .child(div().truncate().text_size(12).line_height("16px").text_color(t.dim).tooltip(context).child(context)))

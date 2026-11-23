@@ -2,7 +2,23 @@
 // JavaScript source retained from upstream; generated copy lives in mods/.
 import { View, div, svg, image } from "gpui-kit";
 import { h_flex, ScrollHandle } from "gpui-base";
-import { spaces, panes, run, openOverlay, theme, window, shared, layout, settings } from "herdr";
+import { spaces, panes, run, openOverlay, theme, window, shared, layout, settings, appHome, checking, exec } from "herdr";
+
+const verifiedSprites = new Set();
+const verifyingSprites = new Set();
+const retrySprites = new Map();
+
+function psLiteral(path) {
+  return `'${path.replace(/['\u2018\u2019\u201a\u201b]/g, "$&$&")}'`;
+}
+
+async function spriteExists(path) {
+  const file = `${appHome()}/${path}`;
+  const result = window()?.platform === "windows"
+    ? await exec("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", `if ([IO.File]::Exists(${psLiteral(file)})) { exit 0 } else { exit 1 }`], { timeout: 3_000 })
+    : await exec("test", ["-f", file], { timeout: 3_000 });
+  return result.code === 0;
+}
 
 function find(node, id) {
   if (node?.id === id) return node;
@@ -27,6 +43,32 @@ function label(tab, lead) {
   const path = /^[~/]|^[A-Za-z]:\\/.test((lead.title ?? "").replace(/^[^\p{L}\p{N}~/]+/u, ""));
   const telling = live && live !== lead.terminal && live !== prog && !path && !live.includes("@") && live.toLowerCase() !== lead.program.key;
   return (tab.name === prog || !tab.named) && telling ? live : base;
+}
+
+function companionSprite(lead, cx) {
+  if (!lead?.program?.agent) return null;
+  const companion = (shared("oaklabs.companions.panes") ?? {})[lead.pane];
+  const pokemon = companion?.pokemon;
+  const format = (shared("oaklabs.companions.sprites") ?? {})[pokemon];
+  if (!Number.isInteger(pokemon) || pokemon < 1 || pokemon > 1025 || (format !== "gif" && format !== "png")) return null;
+  const key = `${pokemon}.${format}`;
+  const path = `data/oaklabs-companions/sprites/${key}`;
+  if (verifiedSprites.has(key)) return path;
+  if (!checking() && !verifyingSprites.has(key) && (retrySprites.get(key) ?? 0) <= Date.now()) {
+    verifyingSprites.add(key);
+    cx.spawn(async task => {
+      try {
+        if (await spriteExists(path)) verifiedSprites.add(key);
+        else retrySprites.set(key, Date.now() + 5_000);
+      } catch {
+        retrySprites.set(key, Date.now() + 5_000);
+      } finally {
+        verifyingSprites.delete(key);
+        task.notify();
+      }
+    });
+  }
+  return null;
 }
 
 export default class Tabs extends View {
@@ -89,9 +131,10 @@ export default class Tabs extends View {
     localStorage.setItem("panels", JSON.stringify(this.panels));
   }
 
-  render() {
+  render(cx) {
     const t = theme();
     const space = spaces().find(p => p.active);
+    const allPanes = panes();
     const shown = space?.tabs ?? [];
     const active = shown.findIndex(tab => tab.active);
     const selected = shown[active]?.id;
@@ -104,8 +147,9 @@ export default class Tabs extends View {
     const button = (id, label, action) => div().id(id).size(30).flex_none().flex().items_center().justify_center().rounded(8).text_color(t.dim).hover(s => s.bg(t.hover).text_color(t.foreground))
       .on_mouse_down("left", stop).on_click(action).child(label);
     const item = (c, i) => {
-      const lead = panes().find(p => p.tab === c.id && p.program?.agent) ?? panes().find(p => p.tab === c.id);
+      const lead = allPanes.find(p => p.tab === c.id && p.program?.agent) ?? allPanes.find(p => p.tab === c.id);
       const program = lead?.program;
+      const picture = companionSprite(lead, cx);
       const name = label(c, lead);
       return h_flex().id(`tab-${c.id}`).h(36).px(12).gap(9).rounded(9).items_center().flex_none().text_size(13).font_medium()
         // A rename or status dot on this or an earlier tab can push the active one out.
@@ -119,7 +163,8 @@ export default class Tabs extends View {
           else run("tab.select", { id: c.id });
         })
         .on_mouse_down("right", (_e, cx) => { cx.stop_propagation(); openOverlay({ mod: "menu", kind: "popup", width: 200, props: { tab: "tab", target: { id: c.id, space: space.id } } }); })
-        .when(Boolean(program?.icon), el => el.child(program.tint ? svg(program.icon).size(14).text_color(t.muted) : image(program.icon).size(14)))
+        .when(Boolean(picture), el => el.child(image(picture).id(`tab-sprite-${c.id}`).size(20).flex_none()))
+        .when(!picture && Boolean(program?.icon), el => el.child(program.tint ? svg(program.icon).size(14).text_color(t.muted) : image(program.icon).size(14)))
         .child(div().max_w(170).truncate().child(c.zoomed ? `${name} Z` : name))
         .when(c.status === "working", el => el.child(svg("mods/workspace-chrome/spinner.svg").size(12).flex_none().text_color(t.working).spin(900)))
         .when(c.status === "blocked" || c.status === "done", el => el.child(div().size(6).rounded(3).bg(t[c.status])))

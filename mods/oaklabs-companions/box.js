@@ -3,7 +3,8 @@ import { h_flex, ScrollHandle, v_flex } from "gpui-base";
 import { closeOverlay, props, run, theme } from "herdr";
 import { species } from "./catalog.js";
 import { activeTarget, liveAgents, loadCollection, refreshCollection, saveCollection } from "./live.js";
-import { assign, claimMission, level, LEVEL_XP, MISSION_XP } from "./model.js";
+import { assign, level, LEVEL_XP } from "./model.js";
+import { milestone } from "./milestone.js";
 import { sprite } from "./sprites.js";
 const INK = "#14161D";
 const RED = "#D71937";
@@ -20,17 +21,16 @@ const COLORS = [
 const STATUS = {
     blocked: { label: "Attend ton aide", fill: "#FF9579", icon: "clock" },
     working: { label: "Travaille", fill: "#FFD23F", icon: "spinner" },
-    ready: { label: "Prêt à valider", fill: "#85DCA1", icon: "circle-check" },
     done: { label: "Terminé", fill: "#85DCA1", icon: "check" },
     idle: { label: "Au repos", fill: "#BCE6FF", icon: "clock" },
     reserve: { label: "En réserve", fill: "#E7DBF4", icon: "archive" },
 };
-const RANK = { blocked: 0, ready: 1, done: 2, working: 3, idle: 4, reserve: 5 };
+const RANK = { blocked: 0, done: 1, working: 2, idle: 3, reserve: 4 };
 function status(entry) {
     const current = entry.target?.agent.status;
     if (!current)
         return "reserve";
-    return entry.companion.pending.length && (current === "done" || current === "idle") ? "ready" : current;
+    return current;
 }
 function pill(kind) {
     const { label, fill, icon } = STATUS[kind];
@@ -79,6 +79,7 @@ export class Box {
     card(entry, t, cx) {
         const { companion } = entry;
         const pokemon = species(companion.pokemon);
+        const stage = milestone(companion.xp);
         const [fill, edge] = COLORS[pokemon.type - 1] ?? ["#DADBE4", "#696C7B"];
         const path = sprite(companion.pokemon, cx);
         const visual = path ? image(path).id(`box-sprite-${companion.id}`).size(78)
@@ -87,11 +88,16 @@ export class Box {
         const rarity = pokemon.rarity === "mythical" ? "Fabuleux" : "Légendaire";
         const description = `${pokemon.name}${pokemon.rarity ? ` · ${rarity}` : ""}\n${pokemon.description}${pokemon.language === "en" ? "\nDescription du Pokédex en anglais" : ""}`;
         return v_flex().id(`companion-${companion.id}`).relative().h(192).flex_1().min_w(0)
-            .overflow_hidden().rounded(15).border(2).border_color(this.selected === companion.id ? t.accent : edge)
+            .overflow_hidden().rounded(15).border(2).border_color(this.selected === companion.id ? t.accent : stage && stage.level >= 25 ? stage.color : edge)
             .bg(fill).text_color(INK).cursor_pointer().on_click((_e, event) => this.select(companion.id, event))
             .child(div().absolute().right(-15).bottom(16).size(112).rounded_full().bg("#FFFFFF4A"))
             .child(div().id(`pokedex-sprite-${companion.id}`).absolute().right(10).bottom(45).size(82)
             .flex().items_center().justify_center().tooltip(description).child(visual))
+            .when(Boolean(stage), el => el.child(div().id(`milestone-card-${companion.id}`)
+            .absolute().right(7).bottom(39).size(30)
+            .flex().items_center().justify_center()
+            .tooltip(`${stage?.label} · palier atteint au niveau ${stage?.level}`)
+            .child(image(`mods/oaklabs-companions/badges/${stage?.mark ?? "1"}.png`).size(30))))
             .child(v_flex().flex_1().gap(6).pt(16).pl(16).pr(94)
             .child(title(pokemon.name, 21).line_height("26px"))
             .child(div().text_size(13).font_medium().line_height("18px").truncate().tooltip(program).child(program))
@@ -103,8 +109,9 @@ export class Box {
             .child(`${pokemon.rarity === "mythical" ? "✦" : "★"} ${rarity}`)))
             .child(v_flex().gap(6).px(16).pb(14)
             .child(h_flex().justify_between().text_size(12).font_medium()
-            .child(`Niv. ${level(companion.xp)}`).child(`${companion.xp % LEVEL_XP} / ${LEVEL_XP} XP`))
-            .child(progress(companion.xp, "#14161D32", "#302247")));
+            .child(div().flex_1().min_w(0).truncate().tooltip(stage?.label ?? "").child(`Niv. ${level(companion.xp)}${stage ? ` · ${stage.label}` : ""}`))
+            .child(div().flex_none().child(`${companion.xp % LEVEL_XP} / ${LEVEL_XP} XP`)))
+            .child(progress(companion.xp, "#14161D32", stage?.color ?? "#302247")));
     }
     openPane(entry) {
         const target = liveAgents().find(candidate => candidate.key === entry.companion.terminal);
@@ -112,16 +119,6 @@ export class Box {
             return;
         this.close();
         run("pane.focus", { pane: target.agent.pane });
-    }
-    validateMission(companion, mission, cx) {
-        const current = loadCollection();
-        const next = claimMission(current, companion.id, mission);
-        if (next === current)
-            return;
-        const updated = next.companions.find(item => item.id === companion.id);
-        saveCollection(current, next);
-        this.feedback = updated ? `Mission validée · +${MISSION_XP} XP · Niv. ${level(updated.xp)}` : `+${MISSION_XP} XP`;
-        cx.notify();
     }
     associate(companion, cx) {
         const targets = liveAgents();
@@ -141,7 +138,7 @@ export class Box {
     detail(entry, t, target) {
         const { companion } = entry;
         const pokemon = species(companion.pokemon);
-        const mission = companion.pending[0];
+        const stage = milestone(companion.xp);
         const location = companion.program && companion.space ? `${companion.program} · ${companion.space}` : "Boîte PC";
         return v_flex().flex_none().gap(12).pt(16).border_t(1).border_color(t.border)
             .child((this.width < 480 ? v_flex() : h_flex()).gap(12).items_center()
@@ -149,15 +146,12 @@ export class Box {
             .child(div().text_size(12).text_color(t.muted).truncate().tooltip(location).child(location)))
             .child(pill(status(entry))))
             .child(h_flex().justify_between().text_size(12).font_medium().text_color(t.muted)
-            .child(`Niv. ${level(companion.xp)}`).child(`${companion.xp % LEVEL_XP} / ${LEVEL_XP} XP`))
-            .child(progress(companion.xp, t.chrome, t.accent))
+            .child(div().flex_1().min_w(0).truncate().tooltip(stage?.label ?? "").child(`Niv. ${level(companion.xp)}${stage ? ` · ${stage.label}` : ""}`))
+            .child(div().flex_none().child(`${companion.xp % LEVEL_XP} / ${LEVEL_XP} XP`)))
+            .child(progress(companion.xp, t.chrome, stage?.color ?? t.accent))
             .child((this.width < 480 ? v_flex() : h_flex()).gap(8)
             .when(Boolean(entry.target), el => el.child(button("focus-agent", "Voir le volet", t, () => this.openPane(entry))))
-            .when(!entry.target && target !== undefined, el => el.child(button("associate-agent", "Associer au volet", t, event => this.associate(companion, event), !mission)))
-            .when(Boolean(mission), el => el.child(button("claim-mission", `Valider · +${MISSION_XP} XP`, t, event => {
-            if (mission)
-                this.validateMission(companion, mission, event);
-        }, true))))
+            .when(!entry.target && target !== undefined, el => el.child(button("associate-agent", "Associer au volet", t, event => this.associate(companion, event), true))))
             .when(!entry.target && !target && !this.feedback, el => el.child(div().text_size(12).text_color(t.muted).child("Sélectionne un volet d’agent pour y associer ce compagnon.")))
             .when(Boolean(this.feedback), el => el.child(div().text_size(12).text_color(t.foreground).child(this.feedback)));
     }

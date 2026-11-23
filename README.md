@@ -61,7 +61,8 @@ Le raccourci **Boîte PC**, au bas de la barre latérale, ouvre aussi la collect
 
 - **Tous** affiche la collection complète à l’ouverture de la boîte. La grille défile pour parcourir tous les compagnons obtenus. Chaque carte indique son espace.
 - **Actifs** filtre les compagnons associés à un volet et affiche l’état de leurs agents. Sélectionnez une carte puis **Voir le volet** pour y accéder.
-- **Valider · +25 XP** apparaît quand Herdr signale une mission terminée. Le compagnon gagne un niveau tous les 100 XP.
+- Chaque tour terminé signalé par Herdr rapporte automatiquement 25 XP au compagnon. Il gagne un niveau tous les 100 XP ; les XP en attente d’une ancienne installation sont crédités automatiquement.
+- Dix paliers jalonnent sa route vers la Ligue : Éclaireur (niveau 2), Compagnon (3), Challenger (4), Aventurier (5), As d’Arène (7), Vétéran (10), Élite (14), Route Victoire (19), Panthéon (25) et Maître de la Ligue (35). Le palier apparaît sur sa carte, dans la progression et sur son sprite dans la liste Agents ; il est distinct de la rareté de son espèce.
 - **Réserve** conserve les compagnons quand leur volet ferme. Pour réaffecter un Pokémon, sélectionnez un volet d’agent puis choisissez **Associer au volet** dans la réserve. Son compagnon actuel rejoint la réserve avec sa progression.
 - Survolez le sprite d’un Pokémon pour lire sa description du Pokédex. Une étoile **★** signale les légendaires et **✦** les fabuleux.
 

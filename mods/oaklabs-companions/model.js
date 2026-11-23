@@ -12,8 +12,6 @@ export function level(xp) {
     return Math.floor(xp / LEVEL_XP) + 1;
 }
 export function observe(collection, targets, pick) {
-    if (!targets.length)
-        return collection;
     const assigned = new Map(collection.companions.map(companion => [companion.terminal, companion]));
     const used = new Set(targets.flatMap(target => {
         const companion = assigned.get(target.key);
@@ -22,8 +20,17 @@ export function observe(collection, targets, pick) {
     const updates = new Map();
     let nextId = collection.nextId;
     let completedTurns = collection.completedTurns;
+    // Settle missions saved by older versions, including companions now in reserve.
+    for (const companion of collection.companions) {
+        if (companion.pending.length)
+            updates.set(companion.id, {
+                ...companion, xp: companion.xp + companion.pending.length * MISSION_XP, pending: [],
+            });
+    }
     for (const target of targets) {
         let companion = assigned.get(target.key);
+        if (companion)
+            companion = updates.get(companion.id) ?? companion;
         if (!companion) {
             companion = {
                 id: nextId++, pokemon: pick(used), xp: 0, terminal: target.key,
@@ -39,7 +46,7 @@ export function observe(collection, targets, pick) {
         const turn = target.doneTurn;
         if (turn !== undefined && turn > (completedTurns[target.key] ?? -1)) {
             completedTurns = { ...completedTurns, [target.key]: turn };
-            updates.set(companion.id, { ...companion, pending: [...companion.pending, `${target.key}:${turn}`] });
+            updates.set(companion.id, { ...companion, xp: companion.xp + MISSION_XP });
         }
     }
     if (!updates.size)
@@ -51,14 +58,6 @@ export function observe(collection, targets, pick) {
     });
     companions.push(...updates.values());
     return { nextId, companions, completedTurns };
-}
-export function claimMission(collection, id, mission) {
-    const companion = collection.companions.find(item => item.id === id);
-    // A callback from an old render can only claim the mission it displayed.
-    if (!companion || companion.pending[0] !== mission)
-        return collection;
-    return { ...collection, companions: collection.companions.map(item => item === companion
-            ? { ...item, xp: item.xp + MISSION_XP, pending: item.pending.slice(1) } : item) };
 }
 export function assign(collection, id, target) {
     const companion = collection.companions.find(item => item.id === id);
