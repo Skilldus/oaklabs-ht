@@ -7,6 +7,7 @@ import { liveAgents, refreshCollection } from "./live.js";
 import { level } from "./model.js";
 import { milestone } from "./milestone.js";
 import { sprite } from "./sprites.js";
+import { agentStatusMark } from "./status.js";
 function agentProps() { return (props() ?? {}); }
 function find(node, id) {
     if (node?.id === id)
@@ -240,20 +241,10 @@ export default class Agents extends View {
             .when(l === "└" || l === "├", el => el.border_b(1.5).rounded_bl(6))))
             .children(pic ? [div().mr(8).child(pic)] : [])
             .child(div().flex_1().truncate().text_color(on ? t.foreground : t.muted).child(k.name || k.template || k.program?.name || k.address))
-            .child(this.status(t, { status: st }, compact));
+            .child(this.status({ status: st }, compact));
     }
-    // compact: a ! for blocked where a header already says "Needs you".
-    status(t, a, compact = false) {
-        if (a.status === "working")
-            return svg("mods/workspace-chrome/spinner.svg").size(12).mx(1).flex_none().text_color(t.working).spin(900);
-        if (a.status === "blocked" && compact)
-            return div().size(14).flex_none().rounded(4).bg(`${t.blocked}26`).text_size(10.5).font_bold().text_color(t.blocked).flex().items_center().justify_center().child("!");
-        if (a.status === "blocked")
-            return div().flex_none().px(6).h(18).rounded(5).bg(`${t.blocked}26`).text_size(10.5).font_semibold().text_color(t.blocked).flex().items_center().child("Needs you");
-        // Idle: a ring; done: a dot.
-        if (a.status === "idle")
-            return div().size(7).mx(3).flex_none().rounded(4).border(1.5).border_color(t.idle ?? t.dim);
-        return div().size(7).mx(3).flex_none().rounded(4).bg(a.status === "done" ? t.done ?? t.dim : `${t.dim}00`);
+    status(a, compact = false) {
+        return agentStatusMark(a.status, compact);
     }
     render(cx) {
         const t = theme();
@@ -376,7 +367,7 @@ export default class Agents extends View {
                     .hover((s) => s.bg(t.hover))
                     .on_click(() => run("pane.focus", { pane: a.pane }))
                     .child(div().flex_1().min_w(0).whitespace_nowrap().text_right().text_color(a.focused ? t.foreground : t.muted).child(String(i + 1)))
-                    .child(h_flex().w(14).flex_none().items_center().justify_center().child(this.status(t, a, true)));
+                    .child(h_flex().w(14).flex_none().items_center().justify_center().child(this.status(a, true)));
             }
             const when = this.since(a);
             const idle = a.status === "idle" && !a.focused;
@@ -446,7 +437,7 @@ export default class Agents extends View {
                 .when(subs.length > 0, el => el.child(fold(a, subs)))
                 .when(this.hovered === a.address, el => el.child(pin))
                 .when(this.hovered !== a.address && Boolean(when), el => el.child(div().flex_none().text_size(11).text_color(t.dim).child(duration(now - when))))
-                .child(this.status(t, a, byPriority && !isPinned));
+                .child(this.status(a, byPriority && !isPinned));
         };
         // Groups in list order: spaces (grouped) or priority sections. Agents of a
         // space are next to each other in agents(), so neighbours make a group.
@@ -484,7 +475,7 @@ export default class Agents extends View {
                 .when(byPriority || !open, (el) => el.child(div().text_color(t.dim).child(String(g.members.length))))
                 .child(div().flex_1())
                 .when(!open, (el) => el
-                .when(!byPriority && top && top !== "idle", (el) => el.child(this.status(t, { status: top }, true)))
+                .when(!byPriority && top && top !== "idle", (el) => el.child(this.status({ status: top }, true)))
                 .child(svg("mods/workspace-chrome/chevron-right.svg").size(11).flex_none().text_color(t.dim)));
         };
         const rows = collapsed

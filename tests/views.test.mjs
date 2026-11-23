@@ -66,6 +66,7 @@ async function harness() {
       home: () => "/home/test", layout: () => null, window: () => null, settings: () => ({ zoom: 1 }),
       openOverlay: spec => calls.push(["open", spec]),
       shared: key => shared.get(key), setShared: (key, value) => shared.set(key, value),
+      setAgentOrder: () => {},
       exec: async (_command, args) => ({ code: [...unavailableSprites].some(pokemon => args.at(-1).includes(`/${pokemon}.`)) ? 1 : 0 }),
       closeOverlay: id => calls.push(["close", id]), run: (...args) => calls.push(["run", ...args]),
     },
@@ -94,9 +95,12 @@ async function harness() {
   await paneModule.evaluate();
   const tabsModule = await load(new URL("../mods/oaklabs-tabs/main.js", import.meta.url).href);
   await tabsModule.evaluate();
+  const sidebarModule = await load(new URL("../mods/oaklabs-companions/sidebar.js", import.meta.url).href);
+  await sidebarModule.evaluate();
   return { box: new boxModule.namespace.Box(cx), Toast: toastModule.namespace.Toast, Pane: paneModule.namespace.default,
-    Tabs: tabsModule.namespace.default, shared, calls, cx, unavailableSprites, spawned,
-    setProps(value) { props = value; } };
+    Tabs: tabsModule.namespace.default, Agents: sidebarModule.namespace.default, shared, calls, cx, unavailableSprites, spawned,
+    setProps(value) { props = value; },
+    setAgentStatus(address, status) { agents.find(agent => agent.address === address).status = status; } };
 }
 
 test("the full collection includes active and reserve companions beyond the former page limit", async () => {
@@ -195,15 +199,41 @@ test("tab icons show the agent sprite without a milestone badge and keep the pro
   assert.equal(nodes(find(tree, "tab-tab-2")).find(node => node.kind === "svg")?.path, "mods/program/claude.svg");
 });
 
+test("agent status markers distinguish quests, requests, work and rest in both sidebar widths", async () => {
+  const { Agents } = await harness();
+  const view = new Agents();
+  for (const compact of [false, true]) {
+    const done = view.status({ status: "done" }, compact);
+    const blocked = view.status({ status: "blocked" }, compact);
+    const working = view.status({ status: "working" }, compact);
+    const idle = view.status({ status: "idle" }, compact);
+    assert.ok(labels(done).includes("!"));
+    assert.ok(labels(blocked).includes("?"));
+    assert.ok(labels(working).includes("✦"));
+    assert.equal(labels(idle).filter(label => label === "z").length, 3);
+    assert.equal(done.attributes.tooltip[0], "Nouveauté · tour terminé");
+    assert.equal(blocked.attributes.tooltip[0], "Besoin de toi");
+    assert.equal(working.attributes.tooltip[0], "Quête en cours");
+    assert.equal(idle.attributes.tooltip[0], "Au repos");
+    assert.equal(done.attributes.size[0], compact ? 15 : 22);
+    assert.ok(nodes(working).some(node => node.attributes.spin?.[0] === 1800));
+  }
+});
+
 test("notifications resolve the exact agent and keep their original action", async () => {
   const harnessState = await harness();
   const { Toast, cx, calls } = harnessState;
-  for (const [terminal, pokemon] of [["t1", 151], ["t2", 150]]) {
+  for (const [terminal, pokemon, status, hint] of [
+    ["t1", 151, "done", "Nouveauté · tour terminé"],
+    ["t2", 150, "blocked", "Besoin de toi"],
+  ]) {
+    harnessState.setAgentStatus(terminal, status);
     harnessState.setProps({ title: "Claude Code finished", overlay: "alert", action: { name: "agent.focus", args: { terminal } } });
     const tree = new Toast().render(cx);
     const image = nodes(tree).find(node => node.kind === "image");
     assert.equal(image.path, `sprites/${pokemon}.gif`);
     assert.equal(image.attributes.size[0], 48);
+    assert.equal(find(tree, "toast-agent-status").content[0].attributes.tooltip[0], hint);
     find(tree, "mewltiplex-toast").attributes.on_click[0]();
     assert.equal(calls.at(-2)[1], "agent.focus");
     assert.equal(calls.at(-2)[2].terminal, terminal);
