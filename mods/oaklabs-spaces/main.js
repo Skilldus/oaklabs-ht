@@ -582,7 +582,7 @@ export default class Spaces extends View {
                 this.scroll.scroll_to_item(this.activeAt);
         }
         return v_flex().size_full().min_h(0).bg(t.chrome).font_family("Geist").text_size(13)
-            .child(h_flex().h(48).flex_none().pl(22).pr(16).items_center().justify_between().text_size(12).font_medium().text_color(t.dim)
+            .child(h_flex().h(48).flex_none().pl(22).pr(16).items_center().justify_between().text_size(15).font_semibold().text_color(t.dim)
             .when(collapsed, el => el.pl(0).pr(0).justify_center())
             .when(!collapsed, el => el.child("Espaces"))
             .child(div().id("space-new").size(26).flex_none().flex().items_center().justify_center().rounded(6).hover(s => s.bg(t.hover).text_color(t.foreground))

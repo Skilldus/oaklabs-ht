@@ -437,7 +437,7 @@ export default class Agents extends View {
                 .gap(6)
                 .items_center()
                 .text_size(12)
-                .font_medium()
+                .font_semibold()
                 .cursor_pointer()
                 .hover((s) => s.text_color(t.foreground))
                 .on_click((_e, cx) => {
@@ -467,7 +467,7 @@ export default class Agents extends View {
             .items_center()
             .justify_between()
             .child(h_flex().gap(8).items_center()
-            .child(div().text_size(12).font_medium().text_color(t.dim).child("Agents"))
+            .child(div().text_size(15).font_semibold().text_color(t.dim).child("Agents"))
             .child(div().px(5).py(1).rounded(5).border(1).border_color(t.border).text_size(11).text_color(t.dim).child(String(list.length))))
             .child(div()
             .id("ag-sort")
