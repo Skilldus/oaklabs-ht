@@ -1,8 +1,8 @@
-# Mewltiplex
+# Pokemon Mewltiplex
 
 **Vos agents avancent. Leurs Pokémon aussi.**
 
-Mewltiplex donne à [Herdr](https://herdr.dev/) un habillage pop inspiré du Pokédex : un boîtier rouge, des espaces faciles à repérer et un compagnon Pokémon pour chaque agent. Le thème suit automatiquement l’apparence claire ou sombre de l’application.
+Pokemon Mewltiplex donne à [Herdr](https://herdr.dev/) un habillage pop inspiré du Pokédex : un boîtier rouge, des espaces faciles à repérer et un compagnon Pokémon pour chaque agent. Le layout installé s’appelle **Mewltiplex** et suit automatiquement l’apparence claire ou sombre de l’application.
 
 ![Aperçu de Mewltiplex en mode sombre](preview.png)
 
