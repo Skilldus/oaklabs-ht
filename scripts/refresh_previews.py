@@ -72,11 +72,30 @@ def tab(image, sprite, light):
     draw.text((354, 24), "Application", font=REGULAR(13), fill=ink, anchor="lt")
 
 
+def demo_space(image, light=False, veiled=False, box_card=False):
+    draw = ImageDraw.Draw(image)
+    background = image.getpixel((190, 176))[:3]
+    ink = (40, 38, 42) if light else ((160, 166, 178) if veiled else (245, 248, 255))
+    draw.rectangle((54, 169, 212, 193), fill=background)
+    draw.text((55, 174), "PokéLab", font=REGULAR(14), fill=ink, anchor="lt")
+
+    row_background = image.getpixel((180, 379))[:3]
+    draw.rectangle((144, 369, 223, 385), fill=row_background)
+    detail_ink = (116, 106, 101) if light else ((115, 122, 134) if veiled else (151, 165, 187))
+    draw.text((144, 369), "PokéLab", font=REGULAR(12), fill=detail_ink, anchor="lt")
+
+    if box_card:
+        card_background = image.getpixel((550, 476))[:3]
+        draw.rectangle((398, 468, 554, 491), fill=card_background)
+        draw.text((399, 472), "PokéLab", font=REGULAR(12), fill=(20, 22, 29), anchor="lt")
+
+
 def workspace(name):
     image = Image.open(BytesIO(subprocess.check_output(["git", "show", f"{BASE_COMMIT}:{name}"], cwd=ROOT))).convert("RGB")
     sprite = sprite_from_header(image)
     sidebar(image)
     tab(image, sprite, name == "preview-paper.png")
+    demo_space(image, light=name == "preview-paper.png")
     image.save(ROOT / name, optimize=True)
 
 
@@ -123,6 +142,7 @@ def box():
     draw.rectangle((380, 767, 1059, 786), fill=surface)
     draw.text((381, 771), "Niv. 3 · Compagnon", font=REGULAR(12), fill=(255, 255, 255), anchor="lt")
     draw.text((1059, 771), "0 / 100 XP", font=REGULAR(12), fill=(255, 255, 255), anchor="rt")
+    demo_space(image, veiled=True, box_card=True)
     image.save(ROOT / "preview-box.png", optimize=True)
 
 
