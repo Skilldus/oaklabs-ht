@@ -43,9 +43,9 @@ Les filtres Tous, Actifs et Réserve, le défilement de toute la collection, les
 
 La vérification visuelle a été effectuée sous Linux. L’installateur PowerShell a été mis à jour mais n’a pas été exécuté sous Windows pendant cette intervention.
 
-## Captures natives
+## Aperçus
 
-Les captures montrent des sessions de démonstration dans le vrai moteur de rendu de Herdr, et non la maquette HTML.
+Les images d’origine montraient des sessions de démonstration dans le moteur de rendu de Herdr. Les aperçus du dépôt ont été actualisés localement le 24 novembre 2026 avec des données fictives pour représenter les sprites d’onglets, les statuts, les badges et la progression automatique. La validation manuelle décrite dans ce rapport du 19 novembre a depuis été supprimée.
 
 - [Espace de travail sombre](preview.png)
 - [Espace de travail clair](preview-paper.png)

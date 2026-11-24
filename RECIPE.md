@@ -2,7 +2,9 @@
 
 Un habillage pop de la fenêtre principale de Herdr App, inspiré du scanner et des cartes du Pokédex d’OakLabs. La variante active suit le réglage d’apparence de Herdr.
 
-![Fenêtre Mewltiplex en mode sombre](preview.png)
+![Aperçu de la fenêtre Mewltiplex en mode sombre](preview.png)
+
+Les aperçus du dépôt utilisent des données fictives et ont été actualisés localement à partir de captures de Herdr App.
 
 ## Apparence
 
@@ -26,7 +28,7 @@ Les en-têtes de terminaux reprennent les couleurs du Pokédex et des voyants du
 - Les deux fichiers de `themes/` définissent les surfaces, les états et les 16 couleurs ANSI. Le cadre arrondi peint le fond uni des volets. Le réglage `terminal_opacity: 0` laisse apparaître les coins de ce cadre.
 - `mods/oaklabs-brand/main.js` adapte l’en-tête de `workspace-chrome`. Il utilise `layout.resize` pour le rail et `mod.open` pour le sélecteur, avec les icônes déjà fournies par Herdr.
 - `mods/oaklabs-pane/main.js` adapte `pane`. Les boutons affichés au survol appellent `pane.split`, `pane.zoom` et `pane.close` avec l’identifiant du volet cliqué.
-- `mods/oaklabs-companions/` adapte la liste Agents de Herdr et fournit le dialogue de la Boîte PC. Le mod suit les fins de tour signalées par Herdr pour proposer la validation des missions et partage les sprites avec les en-têtes des volets. Le champ `toast` du layout utilise ce même mod pour les notifications, qui affichent un sprite de 48 px à gauche du message et conservent l’action native.
+- `mods/oaklabs-companions/` adapte la liste Agents de Herdr et fournit le dialogue de la Boîte PC. Le mod crédite automatiquement les fins de tour signalées par Herdr et partage les sprites avec les en-têtes des volets et les onglets. Le champ `toast` du layout utilise ce même mod pour les notifications, qui affichent un sprite de 48 px à gauche du message et conservent l’action native.
 - `mods/oaklabs-spaces/` et `mods/oaklabs-tabs/` sont des clones de Spaces et Tabs de Herdr App 0.1.16. Les sources JavaScript amont sont conservées dans `src/` et recopiées par le build ; leur présentation est adaptée au thème.
 - Les fichiers JavaScript des mods sont générés depuis `src/` avec `npm run build`.
 

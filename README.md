@@ -2,9 +2,9 @@
 
 Le thème reprend le style pop d’OakLabs avec une typographie Geist et des espacements réguliers. Mew apparaît dans la lentille du scanner, à côté du titre « Mewltiplex ». Le boîtier rouge et les en-têtes colorés encadrent les terminaux ; les cartes de la Boîte PC conservent les fonds par type, le cercle translucide et le bord ombré des tuiles du Pokédex. Herdr applique la variante claire crème ou la variante sombre ardoise selon son réglage d’apparence.
 
-![Mewltiplex en mode sombre dans Herdr App](preview.png)
+![Aperçu de Mewltiplex en mode sombre](preview.png)
 
-[Voir le mode clair](preview-paper.png). Les deux captures montrent une session de démonstration dans Herdr App.
+[Voir le mode clair](preview-paper.png). Les aperçus utilisent des données fictives. Ils ont été actualisés localement à partir de captures de Herdr App pour montrer les sprites dans les onglets, les statuts et les badges de palier.
 
 ## Installation
 
@@ -57,7 +57,7 @@ Remplacez le chemin par celui de votre dépôt. Le script met à jour le thème 
 
 Cliquez sur Mew, dans la lentille de l’en-tête, pour ouvrir la Boîte PC. Chaque agent qui démarre dans un volet reçoit un Pokémon tiré au sort parmi les 1 025 espèces du Pokédex. Son sprite apparaît aussi dans la liste Agents et dans l’en-tête de son volet.
 
-Le raccourci **Boîte PC**, au bas de la barre latérale, ouvre aussi la collection. Les cartes utilisent des noms de 21 px, des informations secondaires de 12–13 px, des badges d’état avec icônes et des badges de rareté nommés. [Voir la Boîte PC dans Herdr](preview-box.png).
+Le raccourci **Boîte PC**, au bas de la barre latérale, ouvre aussi la collection. Les cartes utilisent des noms de 21 px, des informations secondaires de 12–13 px, des badges d’état avec icônes et des badges de rareté nommés. [Voir l’aperçu de la Boîte PC](preview-box.png).
 
 - **Tous** affiche la collection complète à l’ouverture de la boîte. La grille défile pour parcourir tous les compagnons obtenus. Chaque carte indique son espace.
 - **Actifs** filtre les compagnons associés à un volet et affiche l’état de leurs agents. Sélectionnez une carte puis **Voir le volet** pour y accéder.
@@ -93,3 +93,5 @@ npm test
 ```
 
 `npm run build` vérifie les types puis régénère les fichiers JavaScript dans `mods/`. `npm test` lance aussi les tests d’attribution des compagnons et de progression. Incluez les fichiers JavaScript générés avec les modifications des sources.
+
+`scripts/refresh_previews.py` régénère localement les trois aperçus fictifs depuis les captures du commit `cf92357`. Il est prévu pour Windows avec Python, Pillow, Arial et Segoe UI Symbol ; il ne lit pas le profil Herdr de l’utilisateur.

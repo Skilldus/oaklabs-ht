@@ -112,7 +112,7 @@ export class Box {
       .child(div().id(`pokedex-sprite-${companion.id}`).absolute().right(10).bottom(45).size(82)
         .flex().items_center().justify_center().tooltip(description).child(visual))
       .when(Boolean(stage), el => el.child(div().id(`milestone-card-${companion.id}`)
-        .absolute().right(7).bottom(39).size(30)
+        .absolute().right(7).bottom(56).size(30)
         .flex().items_center().justify_center()
         .tooltip(`${stage?.label} · palier atteint au niveau ${stage?.level}`)
         .child(image(`mods/oaklabs-companions/badges/${stage?.mark ?? "1"}.png`).size(30))))
