@@ -12,7 +12,7 @@ Pokemon Mewltiplex gives [Herdr](https://herdr.dev/) a Pokédex-inspired look: a
 
 ## A little play in the workday
 
-- **One Pokémon per agent**, chosen from 1,025 species. Its sprite follows the agent through the sidebar, tabs, panes and notifications.
+- **One Pokémon per agent**, chosen from 1,025 species. The left agent sidebar shows a PMD SpriteCollab portrait when available; tabs, panes and notifications keep their existing sprites.
 - **Statuses at a glance**: `!` for completed work, `?` when an agent needs you, `✦` while it works and `zzz` at rest.
 - **Automatic progress**: completed turns earn XP and unlock ten milestones, up to Pokémon League Champion.
 - **A PC Box** to see active and reserve companions and reassign one to another agent.
@@ -63,7 +63,7 @@ See the [recipe](RECIPE.md) for the design brief and compatibility details, and 
 ## Credits
 
 - **Herdr App:** the layout and several mods adapt [Herdr App](https://github.com/herdrdev/herdr-app), licensed under Apache 2.0.
-- **Pokémon content:** species data and Pokédex text come from [PokéAPI](https://github.com/PokeAPI/pokeapi); sprites are fetched from [PokéAPI/sprites](https://github.com/PokeAPI/sprites). Pokémon artwork and text belong to their respective rights holders.
+- **Pokémon content:** species data and Pokédex text come from [PokéAPI](https://github.com/PokeAPI/pokeapi); sprites are fetched from [PokéAPI/sprites](https://github.com/PokeAPI/sprites). Agent sidebar portraits are fetched from [PMD SpriteCollab](https://github.com/PMDCollab/SpriteCollab) under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/); each portrait's contributors are listed in its `portrait/NNNN/credits.txt` file there. Pokémon artwork and text belong to their respective rights holders.
 - **League badges:** artwork by [Stephen Griffiths](https://github.com/SteGriff/pokemon-badges), licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
 - **Fonts:** Baloo 2 and Nunito, licensed under SIL OFL 1.1.
 

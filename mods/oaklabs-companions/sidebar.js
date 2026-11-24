@@ -7,6 +7,7 @@ import { liveAgents, refreshCollection } from "./live.js";
 import { level } from "./model.js";
 import { milestone } from "./milestone.js";
 import { sprite } from "./sprites.js";
+import { portrait } from "./portraits.js";
 import { agentStatusMark } from "./status.js";
 function agentProps() { return (props() ?? {}); }
 function find(node, id) {
@@ -268,7 +269,7 @@ export default class Agents extends View {
         }
         const assigned = new Map(collection.companions.map(companion => [companion.terminal, companion]));
         const companions = new Map(targets.map(target => [target.agent.address, assigned.get(target.key)]));
-        const avatars = new Map([...companions].map(([address, companion]) => [address, companion ? sprite(companion.pokemon, cx) : null]));
+        const avatars = new Map([...companions].map(([address, companion]) => [address, companion ? portrait(companion.pokemon, cx) ?? sprite(companion.pokemon, cx) : null]));
         this.migratePins(all);
         const shown = focused()?.agent;
         const now = Date.now();
@@ -349,7 +350,8 @@ export default class Agents extends View {
             const companion = companions.get(a.address);
             const stage = companion ? milestone(companion.xp) : null;
             const path = avatars.get(a.address);
-            const pic = path ? image(path).id(`sprite-${a.address}`).size(32).flex_none() : icon(a.program, 20, t.foreground);
+            const portraitSize = path?.startsWith("data/oaklabs-companions/portraits/") ? 40 : 32;
+            const pic = path ? image(path).id(`sprite-${a.address}`).size(portraitSize).flex_none() : icon(a.program, 20, t.foreground);
             const more = detail.get(a.address);
             // An agent on another machine (`vps/t7`) says which.
             const machine = a.address.includes("/") ? a.address.split("/")[0] : null;
@@ -415,7 +417,7 @@ export default class Agents extends View {
             })
                 .on_click(() => run("pane.focus", { pane: a.pane }))
                 .child(div().id(`space-accent-${a.address}`).absolute().left(1).top(9).bottom(9).w(4).rounded(2).bg(spaceFill))
-                .children(pic ? [div().id(`agent-fold-${a.address}`).relative().size(32).flex_none().flex().items_center().justify_center()
+                .children(pic ? [div().id(`agent-fold-${a.address}`).relative().size(40).flex_none().flex().items_center().justify_center()
                     .when(companion !== undefined, el => {
                     if (!companion)
                         return el;

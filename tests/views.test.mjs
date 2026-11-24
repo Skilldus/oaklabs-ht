@@ -31,10 +31,11 @@ function labels(root) {
 }
 
 async function harness() {
-  const context = createContext({});
+  const context = createContext({ localStorage: { getItem: () => null, setItem() {}, removeItem() {} } });
   const shared = new Map();
   const calls = [];
   const unavailableSprites = new Set();
+  const unavailablePortraits = new Set();
   const spawned = [];
   let props = {};
   const program = { name: "Claude Code", agent: true, icon: "mods/program/claude.svg", tint: true };
@@ -54,7 +55,7 @@ async function harness() {
   const colors = Object.fromEntries(["popover", "foreground", "muted", "border", "surface", "raised", "accent",
     "selected", "hover", "working", "blocked", "idle", "done"].map(key => [key, "#334455"]));
   const scroll = { scroll_to_item(index) { calls.push(["scroll", index]); } };
-  const cx = { focus_handle: () => ({ focus() {} }), notify() {}, write_to_clipboard(text) { calls.push(["clipboard", text]); }, stop_propagation() {},
+  const cx = { focus_handle: () => ({ focus() {} }), notify() {}, timer: { every() {} }, write_to_clipboard(text) { calls.push(["clipboard", text]); }, stop_propagation() {},
     spawn(work) { spawned.push(work({ notify() {} })); } };
   const mocks = {
     "gpui-kit": { View: class {}, div: () => element(), image: path => element("image", path), svg: path => element("svg", path) },
@@ -71,6 +72,7 @@ async function harness() {
       closeOverlay: id => calls.push(["close", id]), run: (...args) => calls.push(["run", ...args]),
     },
     sprites: { sprite: pokemon => unavailableSprites.has(pokemon) ? null : `sprites/${pokemon}.gif` },
+    portraits: { portrait: pokemon => unavailablePortraits.has(pokemon) ? null : `data/oaklabs-companions/portraits/${pokemon}.png` },
   };
   const modules = new Map();
   async function load(id) {
@@ -83,7 +85,7 @@ async function harness() {
       : new SourceTextModule(await readFile(new URL(id), "utf8"), { context, identifier: id });
     modules.set(id, module);
     await module.link((specifier, referencing) => load(
-      specifier === "./sprites.js" ? "sprites" : mocks[specifier] ? specifier : new URL(specifier, referencing.identifier).href,
+      specifier === "./sprites.js" ? "sprites" : specifier === "./portraits.js" ? "portraits" : mocks[specifier] ? specifier : new URL(specifier, referencing.identifier).href,
     ));
     return module;
   }
@@ -98,7 +100,7 @@ async function harness() {
   const sidebarModule = await load(new URL("../mods/oaklabs-companions/sidebar.js", import.meta.url).href);
   await sidebarModule.evaluate();
   return { box: new boxModule.namespace.Box(cx), Toast: toastModule.namespace.Toast, Pane: paneModule.namespace.default,
-    Tabs: tabsModule.namespace.default, Agents: sidebarModule.namespace.default, shared, calls, cx, unavailableSprites, spawned,
+    Tabs: tabsModule.namespace.default, Agents: sidebarModule.namespace.default, shared, calls, cx, unavailableSprites, unavailablePortraits, spawned,
     setProps(value) { props = value; },
     setAgentStatus(address, status) { agents.find(agent => agent.address === address).status = status; } };
 }
@@ -218,6 +220,21 @@ test("agent status markers distinguish quests, requests, work and rest in both s
     assert.equal(done.attributes.size[0], compact ? 15 : 22);
     assert.ok(nodes(working).some(node => node.attributes.spin?.[0] === 1800));
   }
+});
+
+test("only the agent sidebar uses PMD portraits and falls back to the existing sprite", async () => {
+  const state = await harness();
+  const { Agents, cx, unavailablePortraits } = state;
+  const view = new Agents();
+  view.init({}, cx);
+  unavailablePortraits.add(150);
+  const tree = view.render(cx);
+  assert.equal(find(tree, "sprite-t1").path, "data/oaklabs-companions/portraits/151.png");
+  assert.equal(find(tree, "sprite-t2").path, "sprites/150.gif");
+  assert.equal(find(tree, "sprite-t1").attributes.size[0], 40);
+  const tabs = new state.Tabs();
+  tabs.init();
+  assert.ok(!nodes(tabs.render(cx)).some(node => node.path?.includes("/portraits/")));
 });
 
 test("notifications resolve the exact agent and keep their original action", async () => {

@@ -12,7 +12,7 @@ Pokemon Mewltiplex donne à [Herdr](https://herdr.dev/) un habillage pop inspir�
 
 ## Un peu de jeu dans le travail
 
-- **Un Pokémon par agent**, choisi parmi 1 025 espèces. Son sprite accompagne l’agent dans la barre latérale, les onglets, les volets et les notifications.
+- **Un Pokémon par agent**, choisi parmi 1 025 espèces. La liste des agents dans la barre latérale gauche affiche un portrait PMD SpriteCollab lorsqu’il existe ; les onglets, les volets et les notifications conservent leurs sprites actuels.
 - **Des statuts qui se lisent d’un coup d’œil** : `!` pour une nouveauté, `?` quand l’agent a besoin de vous, `✦` pendant le travail et `zzz` au repos.
 - **Une progression sans clic supplémentaire** : les tours terminés rapportent automatiquement de l’XP et débloquent dix paliers, jusqu’à Maître de la Ligue.
 - **Une Boîte PC** pour retrouver les compagnons actifs ou en réserve et réaffecter ceux que vous souhaitez garder près de vous.
@@ -63,7 +63,7 @@ Pour les détails de conception et de compatibilité, consultez la [recette en a
 ## Crédits
 
 - **Herdr App :** le layout et plusieurs mods adaptent [Herdr App](https://github.com/herdrdev/herdr-app), sous licence Apache 2.0.
-- **Contenu Pokémon :** les données des espèces et les textes du Pokédex proviennent de [PokéAPI](https://github.com/PokeAPI/pokeapi) ; les sprites sont téléchargés depuis [PokéAPI/sprites](https://github.com/PokeAPI/sprites). Les illustrations et les textes Pokémon appartiennent à leurs ayants droit respectifs.
+- **Contenu Pokémon :** les données des espèces et les textes du Pokédex proviennent de [PokéAPI](https://github.com/PokeAPI/pokeapi) ; les sprites sont téléchargés depuis [PokéAPI/sprites](https://github.com/PokeAPI/sprites). Les portraits de la liste des agents proviennent de [PMD SpriteCollab](https://github.com/PMDCollab/SpriteCollab), sous licence [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) ; les auteurs de chaque portrait figurent dans son fichier `portrait/NNNN/credits.txt`. Les illustrations et les textes Pokémon appartiennent à leurs ayants droit respectifs.
 - **Badges de la Ligue :** illustrations de [Stephen Griffiths](https://github.com/SteGriff/pokemon-badges), sous licence [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
 - **Polices :** Baloo 2 et Nunito, sous licence SIL OFL 1.1.
 
