@@ -1,40 +1,42 @@
 # Pokemon Mewltiplex
 
-**Vos agents avancent. Leurs Pokémon aussi.**
+[Français](README.fr.md)
 
-Pokemon Mewltiplex donne à [Herdr](https://herdr.dev/) un habillage pop inspiré du Pokédex : un boîtier rouge, des espaces faciles à repérer et un compagnon Pokémon pour chaque agent. Le layout installé s’appelle **Mewltiplex** et suit automatiquement l’apparence claire ou sombre de l’application.
+**Your agents progress. So do their Pokémon.**
 
-![Aperçu de Mewltiplex en mode sombre](preview.png)
+Pokemon Mewltiplex gives [Herdr](https://herdr.dev/) a Pokédex-inspired look: a bright red frame, spaces that are easy to scan, and a Pokémon companion for each agent. The installed layout is named **Mewltiplex** and follows the app's light or dark appearance.
 
-[Voir le mode clair](preview-paper.png) · [Découvrir la Boîte PC](preview-box.png)
+![Mewltiplex in dark mode](preview.png)
 
-## Un peu de jeu dans le travail
+[See light mode](preview-paper.png) · [Explore the PC Box](preview-box.png)
 
-- **Un Pokémon par agent**, choisi parmi 1 025 espèces. Son sprite accompagne l’agent dans la barre latérale, les onglets, les volets et les notifications.
-- **Des statuts qui se lisent d’un coup d’œil** : `!` pour une nouveauté, `?` quand l’agent a besoin de vous, `✦` pendant le travail et `zzz` au repos.
-- **Une progression sans clic supplémentaire** : les tours terminés rapportent automatiquement de l’XP et débloquent dix paliers, jusqu’à Maître de la Ligue.
-- **Une Boîte PC** pour retrouver les compagnons actifs ou en réserve et réaffecter ceux que vous souhaitez garder près de vous.
+## A little play in the workday
 
-![Aperçu de la Boîte PC](preview-box.png)
+- **One Pokémon per agent**, chosen from 1,025 species. Its sprite follows the agent through the sidebar, tabs, panes and notifications.
+- **Statuses at a glance**: `!` for completed work, `?` when an agent needs you, `✦` while it works and `zzz` at rest.
+- **Automatic progress**: completed turns earn XP and unlock ten milestones, up to Pokémon League Champion.
+- **A PC Box** to see active and reserve companions and reassign one to another agent.
 
-Les aperçus utilisent des données fictives et ont été composés localement à partir de captures de Herdr.
+![The PC Box](preview-box.png)
+
+The previews use fictional data and were composed locally from Herdr captures.
 
 ## Installation
 
-Compatible avec **Herdr App 0.1.16 ou plus récent** sur Windows, macOS et Linux.
+Requires **Herdr App 0.1.16 or later** on Windows, macOS or Linux.
 
-### Avec un agent
+### With an agent
 
-Donnez-lui cette consigne :
+Give it this instruction:
 
 ```text
-Lis AGENTS.md dans mon profil Herdr App, puis installe Mewltiplex
-depuis https://github.com/Skilldus/oaklabs-ht en suivant son README.
+Read AGENTS.md in my Herdr App profile, then install Mewltiplex
+from https://github.com/Skilldus/oaklabs-ht following its README.
 ```
 
-### Depuis le dépôt
+### From the repository
 
-Clonez le dépôt, puis lancez le script adapté depuis sa racine, avec `herdr-app` disponible dans le terminal :
+Clone the repository and run the appropriate script from its root, with `herdr-app` available in your terminal:
 
 **Windows · PowerShell**
 
@@ -42,18 +44,18 @@ Clonez le dépôt, puis lancez le script adapté depuis sa racine, avec `herdr-a
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
 ```
 
-**macOS et Linux**
+**macOS and Linux**
 
 ```sh
 sh ./install.sh
 ```
 
-Si Herdr est ouvert, l’installation active Mewltiplex. Sinon, sélectionnez-le au prochain lancement dans **Settings → Look → Layout**. Pour revenir à l’interface d’origine, choisissez **Herdr** au même endroit.
+If Herdr is open, the installer activates Mewltiplex. Otherwise, select it next time under **Settings → Look → Layout**. Select **Herdr** there to return to the original interface.
 
-Pour une mise à jour, lancez `git pull --ff-only` dans le dépôt puis relancez le script d’installation.
+To update, run `git pull --ff-only` in the repository and rerun the installation script.
 
-## À découvrir
+## Explore
 
-Cliquez sur **Mew** dans l’en-tête ou sur **Boîte PC** en bas de la barre latérale. Les sprites se téléchargent lors de leur premier affichage puis restent disponibles hors ligne ; les descriptions du Pokédex sont incluses avec le thème.
+Click **Mew** in the header or **PC Box** at the bottom of the sidebar. Sprites download on first use and remain available offline; Pokédex descriptions are included with the layout.
 
-Pour les détails de conception et de compatibilité, consultez la [recette](RECIPE.md). Les sources et attributions figurent dans [NOTICE](NOTICE).
+See the [recipe](RECIPE.md) for the design brief and compatibility details, and [NOTICE](NOTICE) for sources and attribution.
