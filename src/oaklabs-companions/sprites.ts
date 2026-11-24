@@ -1,9 +1,10 @@
-import { exists, mkdir, readFile, unlink } from "fs/promises";
+import { mkdir, unlink } from "fs/promises";
 import { platform } from "os";
 import { appHome, checking, exec, setShared, shared } from "herdr";
 import type { Context } from "gpui-kit";
 import { SPECIES_COUNT, SPRITES_KEY } from "./model.js";
 import { readCurlReport } from "./download.js";
+import { SPRITE_HASHES } from "./sprite-hashes.js";
 
 type Format = "gif" | "png";
 const DIRECTORY = "data/oaklabs-companions/sprites";
@@ -13,7 +14,9 @@ const BLACK_WHITE = new Set([992, 994, 995, 1006, 1008, 1024]);
 const STATIC = new Set([990, 991, 993, 1010, 1017, 1022, 1023, 1025]);
 const MAX_BYTES = 524288;
 const EXPIRY_MS = 30_000;
-const WINDOWS = platform() === "windows";
+const HOST_PLATFORM = platform();
+const WINDOWS = HOST_PLATFORM === "windows";
+const MACOS = HOST_PLATFORM === "macos" || HOST_PLATFORM === "darwin";
 const inFlight = new Map<number, number>();
 const verified = new Set<number>();
 const retryAfter = new Map<number, number>();
@@ -31,12 +34,6 @@ function publish(pokemon: number, format: Format | undefined) {
   setShared(SPRITES_KEY, next);
 }
 
-function valid(bytes: Uint8Array, format: Format) {
-  const signature = format === "gif" ? [71, 73, 70, 56] : [137, 80, 78, 71, 13, 10, 26, 10];
-  const end = format === "gif" ? bytes.at(-1) === 59 : bytes.at(-8) === 73 && bytes.at(-7) === 69 && bytes.at(-6) === 78 && bytes.at(-5) === 68;
-  return bytes.length >= 12 && bytes.length <= MAX_BYTES && end && signature.every((value, index) => bytes[index] === value);
-}
-
 function psLiteral(path: string) {
   return `'${path.replace(/['\u2018\u2019\u201a\u201b]/g, "$&$&")}'`;
 }
@@ -46,29 +43,35 @@ function powershell(script: string) {
     { timeout: 8_000 });
 }
 
-async function cachedSprite(file: string, format: Format) {
+async function verifiedSprite(file: string, pokemon: number, format: Format) {
+  const expected = SPRITE_HASHES[`${pokemon}.${format}`];
+  if (!expected) return false;
   try {
-    return await exists(file) && valid(await readFile(file), format);
-  } catch {
-    // Herdr restricts binary reads to the user's home, even with an external app profile.
+    // Use a host process on every platform: Herdr's binary read can be denied
+    // when the app profile is outside the user's home directory.
     const result = WINDOWS
-      ? await powershell(`if ([IO.File]::Exists(${psLiteral(file)})) { exit 0 } else { exit 1 }`)
-      : await exec("test", ["-f", file]);
-    return result.code === 0;
+      ? await powershell(`(Get-FileHash -LiteralPath ${psLiteral(file)} -Algorithm SHA256).Hash.ToLowerInvariant()`)
+      : await exec(MACOS ? "shasum" : "sha256sum",
+        MACOS ? ["-a", "256", "--", file] : ["--", file], { timeout: 8_000 });
+    const actual = /^([0-9a-f]{64})(?:\s|$)/i.exec(result.stdout.trim())?.[1];
+    return result.code === 0 && actual?.toLowerCase() === expected;
+  } catch {
+    return false;
   }
 }
 
-async function publishFile(temp: string, final: string, format: Format) {
+async function publishFile(temp: string, final: string, pokemon: number, format: Format) {
   const result = WINDOWS ? await powershell(
     `$from = ${psLiteral(temp)}; $to = ${psLiteral(final)}; ` +
     "if ([IO.File]::Exists($to)) { [IO.File]::Replace($from, $to, [NullString]::Value) } " +
     "else { [IO.File]::Move($from, $to) }",
   ) : await exec("mv", ["-f", temp, final]);
   // An overlapping request may already have published the same sprite.
-  return result.code === 0 || await cachedSprite(final, format);
+  return result.code === 0 || await verifiedSprite(final, pokemon, format);
 }
 
 async function fetchSprite(directory: string, pokemon: number, format: Format) {
+  if (!SPRITE_HASHES[`${pokemon}.${format}`]) return false;
   const final = `${directory}/${pokemon}.${format}`;
   const path = format === "png" ? `${pokemon}.png` : BLACK_WHITE.has(pokemon)
     ? `versions/generation-v/black-white/animated/${pokemon}.gif` : `other/showdown/${pokemon}.gif`;
@@ -79,8 +82,8 @@ async function fetchSprite(directory: string, pokemon: number, format: Format) {
       "--output", temp, "--write-out", "%{content_type}\n%{size_download}", `${BASE}/${path}`], { timeout: 12_000 });
     const { type, size } = readCurlReport(result.stdout);
     if (result.code !== 0 || type !== `image/${format}` || !(size >= 12 && size <= MAX_BYTES)) return false;
-    if (!await cachedSprite(temp, format)) return false;
-    return await publishFile(temp, final, format);
+    if (!await verifiedSprite(temp, pokemon, format)) return false;
+    return await publishFile(temp, final, pokemon, format);
   } finally {
     await unlink(temp).catch(() => {});
   }
@@ -90,8 +93,8 @@ async function loadSprite(pokemon: number): Promise<Format | undefined> {
   const directory = `${appHome()}/${DIRECTORY}`;
   await mkdir(directory, { recursive: true });
   const animated = !STATIC.has(pokemon);
-  if (animated && await cachedSprite(`${directory}/${pokemon}.gif`, "gif")) return "gif";
-  if (await cachedSprite(`${directory}/${pokemon}.png`, "png")) return "png";
+  if (animated && await verifiedSprite(`${directory}/${pokemon}.gif`, pokemon, "gif")) return "gif";
+  if (await verifiedSprite(`${directory}/${pokemon}.png`, pokemon, "png")) return "png";
   if (animated) {
     if (await fetchSprite(directory, pokemon, "gif")) return "gif";
   }
