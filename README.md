@@ -59,3 +59,12 @@ To update, run `git pull --ff-only` in the repository and rerun the installation
 Click **Mew** in the header or **PC Box** at the bottom of the sidebar. Sprites download on first use and remain available offline; Pokédex descriptions are included with the layout.
 
 See the [recipe](RECIPE.md) for the design brief and compatibility details, and [NOTICE](NOTICE) for sources and attribution.
+
+## Credits
+
+- **Herdr App:** the layout and several mods adapt [Herdr App](https://github.com/herdrdev/herdr-app), licensed under Apache 2.0.
+- **Pokémon content:** species data and Pokédex text come from [PokéAPI](https://github.com/PokeAPI/pokeapi); sprites are fetched from [PokéAPI/sprites](https://github.com/PokeAPI/sprites). Pokémon artwork and text belong to their respective rights holders.
+- **League badges:** artwork by [Stephen Griffiths](https://github.com/SteGriff/pokemon-badges), licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
+- **Fonts:** Baloo 2 and Nunito, licensed under SIL OFL 1.1.
+
+This is an unofficial Pokémon-inspired fan project. Original project code is [MIT licensed](LICENSE); Herdr adaptations retain Apache 2.0, and neither license covers third-party Pokémon artwork or text. See [NOTICE](NOTICE) for file-level sources and license details.

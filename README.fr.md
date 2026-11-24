@@ -59,3 +59,12 @@ Pour une mise à jour, lancez `git pull --ff-only` dans le dépôt puis relancez
 Cliquez sur **Mew** dans l’en-tête ou sur **Boîte PC** en bas de la barre latérale. Les sprites se téléchargent lors de leur premier affichage puis restent disponibles hors ligne ; les descriptions du Pokédex sont incluses avec le thème.
 
 Pour les détails de conception et de compatibilité, consultez la [recette en anglais](RECIPE.md). Les sources et attributions figurent dans [NOTICE](NOTICE).
+
+## Crédits
+
+- **Herdr App :** le layout et plusieurs mods adaptent [Herdr App](https://github.com/herdrdev/herdr-app), sous licence Apache 2.0.
+- **Contenu Pokémon :** les données des espèces et les textes du Pokédex proviennent de [PokéAPI](https://github.com/PokeAPI/pokeapi) ; les sprites sont téléchargés depuis [PokéAPI/sprites](https://github.com/PokeAPI/sprites). Les illustrations et les textes Pokémon appartiennent à leurs ayants droit respectifs.
+- **Badges de la Ligue :** illustrations de [Stephen Griffiths](https://github.com/SteGriff/pokemon-badges), sous licence [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
+- **Polices :** Baloo 2 et Nunito, sous licence SIL OFL 1.1.
+
+Ce projet de fan inspiré de Pokémon n'est pas officiel. Le code original du projet est sous [licence MIT](LICENSE) ; les adaptations de Herdr restent sous Apache 2.0, et aucune de ces licences ne couvre les illustrations ou textes Pokémon tiers. Consultez [NOTICE](NOTICE) pour les sources par fichier et les détails des licences.
