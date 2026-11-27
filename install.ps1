@@ -36,6 +36,33 @@ $themes = Join-Path $config 'themes'
 $mods = Join-Path $config 'mods'
 New-Item -ItemType Directory -Force -Path $layouts, $themes, $mods | Out-Null
 
+# Optional notification sounds supplied by the person installing the theme.
+# Some downloaded MP3s contain a large ID3 tag that Herdr falls back from.
+$sourceSounds = Join-Path $PSScriptRoot 'sounds'
+$targetSounds = Join-Path $config 'sounds'
+if (Test-Path -LiteralPath $sourceSounds -PathType Container) {
+    New-Item -ItemType Directory -Force -Path $targetSounds | Out-Null
+    $doneSource = Join-Path $sourceSounds 'pokemon-item-received.mp3'
+    if (Test-Path -LiteralPath $doneSource -PathType Leaf) {
+        $bytes = [IO.File]::ReadAllBytes($doneSource)
+        if ($bytes.Length -lt 14) { throw 'pokemon-item-received.mp3 is too short to be an MP3.' }
+        $offset = 0
+        if ($bytes[0] -eq 73 -and $bytes[1] -eq 68 -and $bytes[2] -eq 51) {
+            $tagSize = (($bytes[6] -band 127) -shl 21) -bor (($bytes[7] -band 127) -shl 14) -bor
+                (($bytes[8] -band 127) -shl 7) -bor ($bytes[9] -band 127)
+            $offset = 10 + $tagSize + $(if ($bytes[5] -band 16) { 10 } else { 0 })
+        }
+        if ($offset + 1 -ge $bytes.Length -or $bytes[$offset] -ne 255 -or ($bytes[$offset + 1] -band 224) -ne 224) {
+            throw 'pokemon-item-received.mp3 has no MP3 audio frame after its ID3 tag.'
+        }
+        [IO.File]::WriteAllBytes((Join-Path $targetSounds 'pokemon-item-received.mp3'), $bytes[$offset..($bytes.Length - 1)])
+    }
+    $blockedSource = Join-Path $sourceSounds 'chatot.mp3'
+    if (Test-Path -LiteralPath $blockedSource -PathType Leaf) {
+        Copy-Item -LiteralPath $blockedSource -Destination $targetSounds -Force
+    }
+}
+
 foreach ($theme in @('Mewltiplex-Clair', 'Mewltiplex-Sombre')) {
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot "themes/$theme.json") -Destination $themes -Force
 }

@@ -56,14 +56,16 @@ To update, run `git pull --ff-only` in the repository and rerun the installation
 
 ### Pokémon notification sounds
 
-The audio files are not included in this repository. Use the **Download** button on each page, then save the files with these names in your Herdr profile's `sounds` directory:
+Redistribution rights for these clips are unclear, so the audio files are not included in this repository. Use the **Download** button on each page, then save the files with these names in a `sounds` directory at the repository root:
 
 | Event | Sound to download | File name |
 | --- | --- | --- |
 | Turn completed | [Pokémon Item Received](https://soundboard.pro/sounds/pokemon-item-received-567c1dbb2354/) | `pokemon-item-received.mp3` |
 | Agent needs your attention | [Chatot](https://soundboard.pro/sounds/chatot-a9aecd94f782/) | `chatot.mp3` |
 
-By default, the profile is at `%USERPROFILE%\.config\herdr-app` on Windows and `~/.config/herdr-app` on macOS and Linux. Use `HERDR_APP_HOME` instead if it is set, or `$XDG_CONFIG_HOME/herdr-app` if only `XDG_CONFIG_HOME` is set. Create the `sounds` subdirectory if needed.
+Run the installer again after adding the MP3s. It copies them into the Herdr profile and automatically strips the large ID3 tag from the completion sound, which can prevent Herdr from playing it. Git ignores the repository's `sounds` directory.
+
+By default, the Herdr profile is at `%USERPROFILE%\.config\herdr-app` on Windows and `~/.config/herdr-app` on macOS and Linux. Use `HERDR_APP_HOME` instead if it is set, or `$XDG_CONFIG_HOME/herdr-app` if only `XDG_CONFIG_HOME` is set.
 
 In that profile's `settings.json`, add or complete the `sounds` object while keeping your other settings:
 
@@ -77,7 +79,7 @@ In that profile's `settings.json`, add or complete the `sounds` object while kee
 }
 ```
 
-Changes apply immediately. You can preview the sounds in **Settings → Alerts**. The theme installer leaves these personal preferences untouched.
+Changes apply immediately. You can preview the sounds in **Settings → Alerts**. The theme installer copies the supplied MP3s without changing these personal preferences. If Herdr still plays the bundled sound, use the MP3's absolute path in `settings.json`.
 
 ## Explore
 

@@ -56,14 +56,16 @@ Pour une mise à jour, lancez `git pull --ff-only` dans le dépôt puis relancez
 
 ### Sons de notification Pokémon
 
-Les sons ne sont pas inclus dans le dépôt. Téléchargez-les depuis leurs pages respectives avec le bouton **Download**, puis enregistrez-les sous ces noms dans le dossier `sounds` de votre profil Herdr :
+Les droits de redistribution de ces extraits ne sont pas établis ; les sons ne sont donc pas inclus dans le dépôt. Téléchargez-les depuis leurs pages respectives avec le bouton **Download**, puis enregistrez-les sous ces noms dans un dossier `sounds` à la racine du dépôt :
 
 | Événement | Son à télécharger | Nom du fichier |
 | --- | --- | --- |
 | Tour terminé | [Pokémon Item Received](https://soundboard.pro/sounds/pokemon-item-received-567c1dbb2354/) | `pokemon-item-received.mp3` |
 | Agent en attente de votre intervention | [Chatot](https://soundboard.pro/sounds/chatot-a9aecd94f782/) | `chatot.mp3` |
 
-Par défaut, le profil se trouve dans `%USERPROFILE%\.config\herdr-app` sous Windows et dans `~/.config/herdr-app` sous macOS et Linux. Si `HERDR_APP_HOME` est défini, utilisez ce dossier à la place ; si seul `XDG_CONFIG_HOME` est défini, utilisez `$XDG_CONFIG_HOME/herdr-app`. Créez le sous-dossier `sounds` si nécessaire.
+Relancez le script d’installation après avoir ajouté les MP3. Il les copie dans le profil Herdr et retire automatiquement la volumineuse balise ID3 du son « Tour terminé », qui peut empêcher Herdr de le lire. Le dossier `sounds` du dépôt est ignoré par Git.
+
+Par défaut, le profil Herdr se trouve dans `%USERPROFILE%\.config\herdr-app` sous Windows et dans `~/.config/herdr-app` sous macOS et Linux. Si `HERDR_APP_HOME` est défini, utilisez ce dossier à la place ; si seul `XDG_CONFIG_HOME` est défini, utilisez `$XDG_CONFIG_HOME/herdr-app`.
 
 Dans le fichier `settings.json` de ce profil, ajoutez ou complétez l’objet `sounds` sans supprimer les autres réglages :
 
@@ -77,7 +79,7 @@ Dans le fichier `settings.json` de ce profil, ajoutez ou complétez l’objet `s
 }
 ```
 
-Les changements s’appliquent immédiatement. Vous pouvez écouter chaque son dans **Settings → Alerts**. Le script d’installation du thème ne modifie pas ces préférences personnelles.
+Les changements s’appliquent immédiatement. Vous pouvez écouter chaque son dans **Settings → Alerts**. Le script d’installation copie les MP3 fournis, sans modifier ces préférences personnelles. Si Herdr joue encore le son intégré, utilisez le chemin absolu du MP3 dans `settings.json`.
 
 ## À découvrir
 

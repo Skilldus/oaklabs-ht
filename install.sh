@@ -14,6 +14,37 @@ unset CLAUDECODE CLAUDE_CODE_CHILD_SESSION CLAUDE_CODE_ENTRYPOINT CLAUDE_CODE_EX
     CLAUDE_CODE_MESSAGING_TOKEN CLAUDE_PID CLAUDE_EFFORT AI_AGENT
 
 mkdir -p "$config/layouts" "$config/themes" "$config/mods"
+
+# Optional notification sounds supplied by the person installing the theme.
+# Strip the downloaded completion sound's ID3 tag so Herdr can decode its audio.
+if [ -f "$repo/sounds/pokemon-item-received.mp3" ]; then
+    mkdir -p "$config/sounds"
+    source_sound="$repo/sounds/pokemon-item-received.mp3"
+    target_sound="$config/sounds/pokemon-item-received.mp3"
+    header=$(od -An -tu1 -N3 "$source_sound")
+    set -- $header
+    offset=0
+    if [ "$1" -eq 73 ] && [ "$2" -eq 68 ] && [ "$3" -eq 51 ]; then
+        header=$(od -An -tu1 -j5 -N5 "$source_sound")
+        set -- $header
+        flags=$1
+        offset=$((10 + ($2 & 127) * 2097152 + ($3 & 127) * 16384 + ($4 & 127) * 128 + ($5 & 127)))
+        if [ $((flags & 16)) -ne 0 ]; then offset=$((offset + 10)); fi
+    fi
+    audio_header=$(od -An -tu1 -j "$offset" -N2 "$source_sound")
+    set -- $audio_header
+    if [ "$#" -ne 2 ] || [ "$1" -ne 255 ] || [ $(( $2 & 224 )) -ne 224 ]; then
+        printf '%s\n' 'pokemon-item-received.mp3 has no MP3 audio frame after its ID3 tag.' >&2
+        exit 1
+    fi
+    temporary_sound=$(mktemp "$config/sounds/.pokemon-item-received.XXXXXX")
+    tail -c "+$((offset + 1))" "$source_sound" > "$temporary_sound"
+    mv "$temporary_sound" "$target_sound"
+fi
+if [ -f "$repo/sounds/chatot.mp3" ]; then
+    mkdir -p "$config/sounds"
+    cp "$repo/sounds/chatot.mp3" "$config/sounds/chatot.mp3"
+fi
 cp "$repo/themes/Mewltiplex-Clair.json" "$repo/themes/Mewltiplex-Sombre.json" "$config/themes/"
 for mod in oaklabs-brand oaklabs-pane oaklabs-companions oaklabs-spaces oaklabs-tabs; do
     cp -R "$repo/mods/$mod" "$config/mods/"

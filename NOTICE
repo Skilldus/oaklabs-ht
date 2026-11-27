@@ -14,6 +14,8 @@ Baloo 2 and Nunito are distributed under the SIL Open Font License 1.1. See the 
 
 The Mew-inspired mark in mods/oaklabs-brand/logo.svg and its rasterized logo.png are original drawings for this layout. Pokémon and Mew belong to their respective rights holders.
 
+The optional Pokémon notification sounds are not distributed with this repository. Their download pages do not establish permission to redistribute the clips in this project.
+
 The companion catalogue uses French species names and primary types from the PokéAPI data files (https://github.com/PokeAPI/pokeapi/tree/master/data/v2/csv).
 The Pokédex entries and legendary/mythical categories use pokemon_species_flavor_text.csv and pokemon_species.csv at revision 193d8d4fbb57cf962e3f7c1ce5299a6fe847b3f8 of https://github.com/PokeAPI/pokeapi. The PokéAPI repository's copyright notice, redistribution conditions and disclaimer are reproduced in LICENSES/PokeAPI-BSD-3-Clause.txt. Pokédex text belongs to the respective Pokémon rights holders.
 At runtime, companion sprites are downloaded from https://github.com/PokeAPI/sprites at revision c0542f7c51215d9672439012838c99f520596cbd, including Pokémon Showdown battle sprites and the Black & White animated collection. That repository states that all image contents are copyright The Pokémon Company; its CC0 notice does not grant rights held by third parties.
