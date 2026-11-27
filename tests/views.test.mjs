@@ -222,6 +222,18 @@ test("agent status markers distinguish quests, requests, work and rest in both s
   }
 });
 
+test("agent rows keep priority-sized status markers when grouped by space", async () => {
+  const { Agents, cx, shared } = await harness();
+  for (const sort of ["priority", "grouped"]) {
+    shared.set("agents.sort", sort);
+    const view = new Agents();
+    view.init({}, cx);
+    const row = find(view.render(cx), "ag-t1");
+    const status = nodes(row).find(node => node.attributes.tooltip?.[0] === "Au repos");
+    assert.equal(status?.attributes.h?.[0], 15, `${sort} status height`);
+  }
+});
+
 test("only the agent sidebar uses PMD portraits and falls back to the existing sprite", async () => {
   const state = await harness();
   const { Agents, cx, unavailablePortraits } = state;

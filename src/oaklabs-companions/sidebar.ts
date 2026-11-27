@@ -217,7 +217,7 @@ export default class Agents extends View {
     });
   }
 
-  private subRow(t: Theme, s: TreeRow, shown: string | null | undefined, compact: boolean, avatar?: string | null) {
+  private subRow(t: Theme, s: TreeRow, shown: string | null | undefined, avatar?: string | null) {
     const k = s.t;
     const st = kidStatus(k, this.listed);
     const pic = avatar ? image(avatar).id(`sub-sprite-${k.address}`).size(20).flex_none() : icon(k.program, 14, t.foreground);
@@ -240,7 +240,7 @@ export default class Agents extends View {
         .when(l === "└" || l === "├", el => el.border_b(1.5).rounded_bl(6))))
       .children(pic ? [div().mr(8).child(pic)] : [])
       .child(div().flex_1().truncate().text_color(on ? t.foreground : t.muted).child(k.name || k.template || k.program?.name || k.address))
-      .child(this.status({ status: st }, compact));
+      .child(this.status({ status: st }, true));
   }
 
   private status(a: { status?: string | null }, compact = false) {
@@ -292,7 +292,7 @@ export default class Agents extends View {
       const subs = collapsed ? [] : this.tree(all, a.address);
       const r = row(a, i, subs);
       if (this.folded.has(a.address)) return [r];
-      return [r, ...subs.map((s) => this.subRow(t, s, shown, byPriority, avatars.get(s.t.address)))];
+      return [r, ...subs.map((s) => this.subRow(t, s, shown, avatars.get(s.t.address)))];
     };
 
     // The fold chevron; folded, the count too, colored by the most urgent one.
@@ -396,7 +396,7 @@ export default class Agents extends View {
         .id(`ag-${a.address}`)
         .relative()
         .px(10)
-        .h(60)
+        .h(48)
         .flex_none()
         .rounded(10)
         .items_center()
@@ -410,7 +410,7 @@ export default class Agents extends View {
           cx.notify();
         })
         .on_click(() => run("pane.focus", { pane: a.pane }))
-        .child(div().id(`space-accent-${a.address}`).absolute().left(1).top(9).bottom(9).w(4).rounded(2).bg(spaceFill))
+        .child(div().id(`space-accent-${a.address}`).absolute().left(1).top(7).bottom(7).w(4).rounded(2).bg(spaceFill))
         .children(pic ? [div().id(`agent-fold-${a.address}`).relative().size(40).flex_none().flex().items_center().justify_center()
           .when(companion !== undefined, el => {
             if (!companion) return el;
@@ -432,7 +432,7 @@ export default class Agents extends View {
         .when(subs.length > 0, el => el.child(fold(a, subs)))
         .when(this.hovered === a.address, el => el.child(pin))
         .when(this.hovered !== a.address && Boolean(when), el => el.child(div().flex_none().text_size(11).text_color(t.dim).child(duration(now - when))))
-        .child(this.status(a, byPriority && !isPinned));
+        .child(this.status(a, true));
     };
 
     // Groups in list order: spaces (grouped) or priority sections. Agents of a
@@ -481,7 +481,6 @@ export default class Agents extends View {
       .size_full()
       .min_h(0)
       .bg(t.chrome)
-      .font_family("Geist")
       .text_size(13)
       .when(!collapsed, (el) =>
         el.child(

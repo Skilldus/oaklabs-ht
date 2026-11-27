@@ -53,7 +53,7 @@ function pill(kind: MemberStatus) {
 }
 
 function title(text: string, size: number) {
-  return div().font_family("Geist").font_semibold().text_size(size).truncate().tooltip(text).child(text);
+  return div().font_semibold().text_size(size).truncate().tooltip(text).child(text);
 }
 
 function progress(xp: number, track: Color, fill: Color) {
@@ -202,7 +202,6 @@ export class Box {
     }, this.tab === id);
     return v_flex().id("oaklabs-box").track_focus(this.focus).size_full().min_h(0).overflow_hidden()
       .rounded(BOX_RADIUS).border(1).border_color(t.border).bg(t.surface).text_color(t.foreground)
-      .font_family("Geist")
       .on_key_down((event, context) => {
         if (!selected) return;
         if (event.key === "enter") {
