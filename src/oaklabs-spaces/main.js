@@ -27,7 +27,7 @@ function place(s, ps) {
   const tabs = new Set((s.tabs ?? []).map((c) => c.id));
   return ps.find((p) => tabs.has(p.tab) && p.cwd)?.cwd || s.folder;
 }
-const rowHeight = ({ tree }) => (tree ? 36 : 44);
+const rowHeight = ({ tree }) => (tree ? 30 : 36);
 const RAIL_CELL = 32;
 // A space's name and its git tail never shrink below this, so a short one ("api")
 // stays readable instead of turning into an ellipsis next to a long branch.
@@ -540,7 +540,7 @@ export default class Spaces extends View {
       this.revealedAt = this.activeAt;
       if (this.activeAt >= 0) this.scroll.scroll_to_item(this.activeAt);
     }
-    return v_flex().size_full().min_h(0).bg(t.chrome).font_family("Geist").text_size(13)
+    return v_flex().size_full().min_h(0).bg(t.chrome).text_size(13)
       .child(h_flex().h(48).flex_none().pl(22).pr(16).items_center().justify_between().text_size(15).font_semibold().text_color(t.dim)
         .when(collapsed, el => el.pl(0).pr(0).justify_center())
         .when(!collapsed, el => el.child("Espaces"))

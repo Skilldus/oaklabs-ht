@@ -97,7 +97,7 @@ export default class Pane extends View {
             .when(bottom, el => el.rounded_b(radius).border_t(1))
             .when(!bottom, el => el.rounded_t(radius).border_b(1))
             .border_color("#14161D26")
-            .font_family("Geist").text_size(13)
+            .text_size(13)
             .on_size_change(({ width }, cx) => {
             if (this.width !== width) {
                 this.width = width;

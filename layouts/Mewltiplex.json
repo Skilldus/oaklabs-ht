@@ -13,8 +13,6 @@
   },
   "preview": "layouts/Mewltiplex.png",
   "background": "canvas",
-  "ui_font": "Geist",
-  "font_weight": 400,
   "terminal_line_height": 1.2,
   "terminal_padding": [
     20,
@@ -83,7 +81,7 @@
           "id": "sidebar-footer",
           "type": "block",
           "size": {
-            "px": 144
+            "px": 160
           },
           "content": {
             "mod": "oaklabs-brand",
@@ -113,10 +111,7 @@
         {
           "id": "work-body",
           "type": "row",
-          "background": {
-            "gradient": ["#FF4257", "#E11030"],
-            "angle": 160
-          },
+          "background": "chrome",
           "padding": 12,
           "gap": 12,
           "children": [
@@ -133,7 +128,7 @@
                   "lone": true,
                   "border": {
                     "width": 1,
-                    "color": "#14161D"
+                    "color": "border"
                   },
                   "focus": {
                     "width": 1,
