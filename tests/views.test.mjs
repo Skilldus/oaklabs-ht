@@ -36,6 +36,7 @@ async function harness() {
   const calls = [];
   const unavailableSprites = new Set();
   const unavailablePortraits = new Set();
+  const portraitRequests = [];
   const spawned = [];
   let props = {};
   const program = { name: "Claude Code", agent: true, icon: "mods/program/claude.svg", tint: true };
@@ -72,7 +73,10 @@ async function harness() {
       closeOverlay: id => calls.push(["close", id]), run: (...args) => calls.push(["run", ...args]),
     },
     sprites: { sprite: pokemon => unavailableSprites.has(pokemon) ? null : `sprites/${pokemon}.gif` },
-    portraits: { portrait: pokemon => unavailablePortraits.has(pokemon) ? null : `data/oaklabs-companions/portraits/${pokemon}.png` },
+    portraits: { portrait: pokemon => {
+      portraitRequests.push(pokemon);
+      return unavailablePortraits.has(pokemon) ? null : `data/oaklabs-companions/portraits/${pokemon}.png`;
+    } },
   };
   const modules = new Map();
   async function load(id) {
@@ -99,8 +103,16 @@ async function harness() {
   await tabsModule.evaluate();
   const sidebarModule = await load(new URL("../mods/oaklabs-companions/sidebar.js", import.meta.url).href);
   await sidebarModule.evaluate();
+  const settingsModule = await load(new URL("../mods/oaklabs-companions/settings.js", import.meta.url).href);
+  await settingsModule.evaluate();
+  const brandModule = await load(new URL("../mods/oaklabs-brand/main.js", import.meta.url).href);
+  await brandModule.evaluate();
+  const mainModule = await load(new URL("../mods/oaklabs-companions/main.js", import.meta.url).href);
+  await mainModule.evaluate();
   return { box: new boxModule.namespace.Box(cx), Toast: toastModule.namespace.Toast, Pane: paneModule.namespace.default,
-    Tabs: tabsModule.namespace.default, Agents: sidebarModule.namespace.default, shared, calls, cx, unavailableSprites, unavailablePortraits, spawned,
+    Tabs: tabsModule.namespace.default, Agents: sidebarModule.namespace.default, AppSettings: settingsModule.namespace.AppSettings,
+    Brand: brandModule.namespace.default, Companions: mainModule.namespace.default, shared, calls, cx,
+    unavailableSprites, unavailablePortraits, portraitRequests, spawned,
     setProps(value) { props = value; },
     setAgentStatus(address, status) { agents.find(agent => agent.address === address).status = status; } };
 }
@@ -247,6 +259,43 @@ test("only the agent sidebar uses PMD portraits and falls back to the existing s
   const tabs = new state.Tabs();
   tabs.init();
   assert.ok(!nodes(tabs.render(cx)).some(node => node.path?.includes("/portraits/")));
+});
+
+test("the sidebar settings entry opens app settings and its switch selects agent sprites", async () => {
+  const state = await harness();
+  const { Agents, Companions, Brand, cx, shared, calls, portraitRequests } = state;
+  state.setProps({ footer: true });
+  const footer = new Brand().render();
+  const entry = find(footer, "oaklabs-settings");
+  assert.deepEqual(labels(footer).slice(-4), ["Boîte PC", "Réglages", "Paramètres Mewltiplex", "Ajouter une machine"]);
+  assert.equal(nodes(entry).find(node => node.kind === "svg")?.path, "mods/oaklabs-brand/pokeball.svg");
+  entry.attributes.on_click[0]();
+  assert.equal(calls.at(-1)[0], "open");
+  assert.equal(calls.at(-1)[1].mod, "oaklabs-companions");
+  assert.equal(calls.at(-1)[1].props.appSettings, true);
+
+  state.setProps({ appSettings: true, overlay: "settings-overlay" });
+  const settings = new Companions();
+  settings.init({}, cx);
+  assert.ok(labels(settings.render(cx)).includes("Portraits Pokémon Mystery Dungeon"));
+  find(settings.render(cx), "oaklabs-agent-icons-toggle").attributes.on_click[0](null, cx);
+  assert.equal(shared.get("oaklabs.companions.agentIcons"), "sprites");
+  assert.ok(labels(settings.render(cx)).includes("Sprites animés"));
+
+  state.setProps({ sidebar: true });
+  const view = new Agents();
+  view.init({}, cx);
+  const tree = view.render(cx);
+  assert.equal(find(tree, "sprite-t1").path, "sprites/151.gif");
+  assert.equal(find(tree, "sprite-t1").attributes.size[0], 32);
+  assert.deepEqual(portraitRequests, []);
+
+  state.setProps({ appSettings: true, overlay: "settings-overlay" });
+  settings.render(cx).attributes.on_key_down[0]({ key: "space" }, cx);
+  assert.equal(shared.get("oaklabs.companions.agentIcons"), "portraits");
+  assert.equal(find(view.render(cx), "sprite-t1").path, "data/oaklabs-companions/portraits/151.png");
+  find(settings.render(cx), "oaklabs-settings-close").attributes.on_click[0]();
+  assert.deepEqual(calls.at(-1), ["close", "settings-overlay"]);
 });
 
 test("notifications resolve the exact agent and keep their original action", async () => {

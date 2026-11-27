@@ -2,7 +2,7 @@
 // Adapted from Herdr's workspace-chrome header (Apache-2.0, see NOTICE).
 import { View, div, image, svg } from "gpui-kit";
 import { h_flex, v_flex } from "gpui-base";
-import { run, window, shared, setShared, layout, props, theme } from "herdr";
+import { run, window, shared, setShared, layout, props, theme, openOverlay } from "herdr";
 import type { LayoutNode } from "../../types/layout";
 
 function find(node: LayoutNode | null, id: string): LayoutNode | null {
@@ -49,11 +49,13 @@ export default class OakLabsBrand extends View {
       h_flex().id(id).h(32).flex_none().px(collapsed ? 0 : 10).gap(10).items_center().rounded(8)
         .when(collapsed, el => el.justify_center().tooltip(label))
         .text_size(13).text_color(t.muted).cursor_pointer().hover(el => el.bg(t.hover).text_color(t.foreground))
-        .on_click(action).child(svg(`mods/workspace-chrome/${icon}.svg`).size(16))
+        .on_click(action).child(svg(icon.startsWith("mods/") ? icon : `mods/workspace-chrome/${icon}.svg`).size(16))
         .when(!collapsed, el => el.child(label));
     return v_flex().size_full().px(collapsed ? 6 : 12).py(8).gap(4).bg(t.chrome)
       .child(row("oaklabs-box-shortcut", "archive", "Boîte PC", () => run("mod.open", { name: "oaklabs-companions" })))
       .child(row("settings", "settings", "Réglages", () => run("app.settings")))
+      .child(row("oaklabs-settings", "mods/oaklabs-brand/pokeball.svg", "Paramètres Mewltiplex", () =>
+        openOverlay({ mod: "oaklabs-companions", kind: "dialog", width: 440, height: 240, frame: "none", props: { appSettings: true } })))
       .child(row("machine", "plus", "Ajouter une machine", () => run("mod.open", { name: "machine-add" })));
   }
 

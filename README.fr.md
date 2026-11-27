@@ -12,7 +12,7 @@ Pokemon Mewltiplex donne à [Herdr](https://herdr.dev/) un habillage pop inspir�
 
 ## Un peu de jeu dans le travail
 
-- **Un Pokémon par agent**, choisi parmi 1 025 espèces. La liste des agents dans la barre latérale gauche affiche un portrait PMD SpriteCollab lorsqu’il existe ; les onglets, les volets et les notifications conservent leurs sprites actuels.
+- **Un Pokémon par agent**, choisi parmi 1 025 espèces. La liste des agents dans la barre latérale gauche affiche un portrait PMD SpriteCollab lorsqu’il existe ; choisissez plutôt les sprites animés dans **Paramètres Mewltiplex** en bas de la barre latérale. Les onglets, les volets et les notifications conservent leurs sprites actuels.
 - **Des statuts qui se lisent d’un coup d’œil** : `!` pour une nouveauté, `?` quand l’agent a besoin de vous, `✦` pendant le travail et `zzz` au repos.
 - **Une progression sans clic supplémentaire** : les tours terminés rapportent automatiquement de l’XP et débloquent dix paliers, jusqu’à Maître de la Ligue.
 - **Une Boîte PC** pour retrouver les compagnons actifs ou en réserve et réaffecter ceux que vous souhaitez garder près de vous.

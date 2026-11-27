@@ -4,7 +4,7 @@ import { v_flex, h_flex } from "gpui-base";
 import { agents, terminals, panes, focused, spaces, run, theme, shared, setShared, setAgentOrder, openOverlay, closeOverlay, props, window, layout } from "herdr";
 import { species } from "./catalog.js";
 import { liveAgents, refreshCollection } from "./live.js";
-import { level } from "./model.js";
+import { AGENT_ICONS_KEY, level } from "./model.js";
 import { milestone } from "./milestone.js";
 import { sprite } from "./sprites.js";
 import { portrait } from "./portraits.js";
@@ -269,7 +269,10 @@ export default class Agents extends View {
         }
         const assigned = new Map(collection.companions.map(companion => [companion.terminal, companion]));
         const companions = new Map(targets.map(target => [target.agent.address, assigned.get(target.key)]));
-        const avatars = new Map([...companions].map(([address, companion]) => [address, companion ? portrait(companion.pokemon, cx) ?? sprite(companion.pokemon, cx) : null]));
+        const usePortraits = shared(AGENT_ICONS_KEY) !== "sprites";
+        const avatars = new Map([...companions].map(([address, companion]) => [address, companion
+                ? usePortraits ? portrait(companion.pokemon, cx) ?? sprite(companion.pokemon, cx) : sprite(companion.pokemon, cx)
+                : null]));
         this.migratePins(all);
         const shown = focused()?.agent;
         const now = Date.now();

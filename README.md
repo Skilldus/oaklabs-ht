@@ -12,7 +12,7 @@ Pokemon Mewltiplex gives [Herdr](https://herdr.dev/) a Pokédex-inspired look: a
 
 ## A little play in the workday
 
-- **One Pokémon per agent**, chosen from 1,025 species. The left agent sidebar shows a PMD SpriteCollab portrait when available; tabs, panes and notifications keep their existing sprites.
+- **One Pokémon per agent**, chosen from 1,025 species. The left agent sidebar shows a PMD SpriteCollab portrait when available; choose animated sprites instead in **Mewltiplex Settings** at the bottom of the sidebar. Tabs, panes and notifications keep their existing sprites.
 - **Statuses at a glance**: `!` for completed work, `?` when an agent needs you, `✦` while it works and `zzz` at rest.
 - **Automatic progress**: completed turns earn XP and unlock ten milestones, up to Pokémon League Champion.
 - **A PC Box** to see active and reserve companions and reassign one to another agent.

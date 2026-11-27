@@ -2,6 +2,7 @@
 export const COLLECTION_KEY = "oaklabs.companions.v1";
 export const PANE_COMPANIONS_KEY = "oaklabs.companions.panes";
 export const SPRITES_KEY = "oaklabs.companions.sprites";
+export const AGENT_ICONS_KEY = "oaklabs.companions.agentIcons";
 export const MISSION_XP = 25;
 export const LEVEL_XP = 100;
 export const SPECIES_COUNT = 1025;
