@@ -12,7 +12,7 @@ See LICENSES/Apache-2.0.txt for the license and https://github.com/herdrdev/herd
 
 Baloo 2 and Nunito are distributed under the SIL Open Font License 1.1. See the notices in mods/oaklabs-brand/fonts/.
 
-The Mew illustration in mods/oaklabs-brand/mew.png comes from the OakLabs app's src/assets/pokemons/151.png. Pokémon and Mew belong to their respective rights holders.
+The Mew-inspired mark in mods/oaklabs-brand/logo.svg and its rasterized logo.png are original drawings for this layout. Pokémon and Mew belong to their respective rights holders.
 
 The companion catalogue uses French species names and primary types from the PokéAPI data files (https://github.com/PokeAPI/pokeapi/tree/master/data/v2/csv).
 The Pokédex entries and legendary/mythical categories use pokemon_species_flavor_text.csv and pokemon_species.csv at revision 193d8d4fbb57cf962e3f7c1ce5299a6fe847b3f8 of https://github.com/PokeAPI/pokeapi. The PokéAPI repository's copyright notice, redistribution conditions and disclaimer are reproduced in LICENSES/PokeAPI-BSD-3-Clause.txt. Pokédex text belongs to the respective Pokémon rights holders.

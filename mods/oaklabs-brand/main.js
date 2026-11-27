@@ -24,12 +24,11 @@ function toggleSidebar() {
     run("layout.resize", { id: "sidebar", px: nextWidth });
 }
 function lens() {
-    return div().id("oaklabs-open-box").relative().size(36).flex_none().rounded_full().bg("#FFF6EE")
+    return div().id("oaklabs-open-box").size(36).flex_none()
         .cursor_pointer().tooltip("Ouvrir la Boîte PC")
         .on_mouse_down("left", (_e, cx) => cx.stop_propagation())
         .on_click(() => run("mod.open", { name: "oaklabs-companions" }))
-        .child(div().absolute().top(2).left(2).size(32).rounded_full().bg("#BCE8FF"))
-        .child(image("mods/oaklabs-brand/mew.png").absolute().top(1).left(1).size(34));
+        .child(image("mods/oaklabs-brand/logo.png").size(36));
 }
 function button(id, icon, action) {
     return div().id(id).relative().size(28).flex_none().flex().items_center().justify_center()
@@ -67,7 +66,7 @@ export default class OakLabsBrand extends View {
             .when(!collapsed, el => el
             .child(h_flex().flex_1().min_w(0).overflow_hidden().gap(8).items_center()
             .child(lens())
-            .child(div().min_w(0).font_semibold()
+            .child(div().h(36).min_w(0).flex().items_center().font_semibold()
             .text_size(trafficLights ? 14 : 19).line_height("24px")
             .truncate().text_color("#FFF6EE").child("Mewltiplex")))
             .child(button("search", "search", () => run("mod.open", { name: "picker" }))))

@@ -54,6 +54,31 @@ Si Herdr est ouvert, l’installation active Mewltiplex. Sinon, sélectionnez-le
 
 Pour une mise à jour, lancez `git pull --ff-only` dans le dépôt puis relancez le script d’installation.
 
+### Sons de notification Pokémon
+
+Les sons ne sont pas inclus dans le dépôt. Téléchargez-les depuis leurs pages respectives avec le bouton **Download**, puis enregistrez-les sous ces noms dans le dossier `sounds` de votre profil Herdr :
+
+| Événement | Son à télécharger | Nom du fichier |
+| --- | --- | --- |
+| Tour terminé | [Pokémon Item Received](https://soundboard.pro/sounds/pokemon-item-received-567c1dbb2354/) | `pokemon-item-received.mp3` |
+| Agent en attente de votre intervention | [Chatot](https://soundboard.pro/sounds/chatot-a9aecd94f782/) | `chatot.mp3` |
+
+Par défaut, le profil se trouve dans `%USERPROFILE%\.config\herdr-app` sous Windows et dans `~/.config/herdr-app` sous macOS et Linux. Si `HERDR_APP_HOME` est défini, utilisez ce dossier à la place ; si seul `XDG_CONFIG_HOME` est défini, utilisez `$XDG_CONFIG_HOME/herdr-app`. Créez le sous-dossier `sounds` si nécessaire.
+
+Dans le fichier `settings.json` de ce profil, ajoutez ou complétez l’objet `sounds` sans supprimer les autres réglages :
+
+```json
+{
+  "sounds": {
+    "enabled": true,
+    "done": "sounds/pokemon-item-received.mp3",
+    "blocked": "sounds/chatot.mp3"
+  }
+}
+```
+
+Les changements s’appliquent immédiatement. Vous pouvez écouter chaque son dans **Settings → Alerts**. Le script d’installation du thème ne modifie pas ces préférences personnelles.
+
 ## À découvrir
 
 Cliquez sur **Mew** dans l’en-tête ou sur **Boîte PC** en bas de la barre latérale. Les sprites se téléchargent lors de leur premier affichage puis restent disponibles hors ligne ; les descriptions du Pokédex sont incluses avec le thème.
